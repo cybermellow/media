@@ -1,29 +1,22 @@
 """
 Real Estate Listing Video Generator
-Uses Google Veo 3.1 to generate cinematic walkthrough clips from listing photos.
-Reads the Zillow listing description to craft property-specific video prompts.
+Takes a Zillow URL, downloads photos automatically, and generates
+a cinematic animated walkthrough video using Google Veo.
 
 SETUP:
-1. Install dependencies: pip install google-genai pillow requests beautifulsoup4
-2. Create a .env file in this folder with: GOOGLE_API_KEY=your_key_here
-3. Run: python listing_video_generator.py --folder "./listings/5186_Vardon_Dr" --zillow "https://www.zillow.com/homedetails/..."
+1. pip install google-genai beautifulsoup4 requests playwright
+2. playwright install chromium
+3. Create .env file: GOOGLE_API_KEY=your_key_here
+4. brew install ffmpeg  (Mac) or download from ffmpeg.org (Windows)
 
-FOLDER STRUCTURE:
-  listings/
-    5186_Vardon_Dr/
-      01_exterior.jpg
-      02_fountain.jpg
-      03_facade.jpg
-      04_interior.jpg
-      05_pool.jpg
+USAGE:
+  python listing_video_generator.py --zillow "https://www.zillow.com/homedetails/..."
 
-OUTPUT:
-  listings/5186_Vardon_Dr/output/
-    clip_01_exterior.mp4
-    clip_02_fountain.mp4
-    ...
-    walkthrough_preview.mp4  (stitched together)
-    listing_story.txt        (extracted description + generated prompts)
+OPTIONAL FLAGS:
+  --photos   6          number of photos to select (default 6)
+  --duration 6          seconds per clip: 4, 6, or 8 (default 6)
+  --model    veo-2.0-generate-001   use cheaper/faster model
+  --output   ./output   custom output directory
 """
 
 import os
@@ -33,9 +26,12 @@ import json
 import argparse
 import base64
 import re
+import shutil
+import urllib.request
 from pathlib import Path
 
-# Load .env file manually (no dotenv dependency needed)
+# ─── Load .env ────────────────────────────────────────────────────────────────
+
 def load_env():
     env_path = Path(__file__).parent / ".env"
     if env_path.exists():
@@ -52,149 +48,194 @@ try:
     from google import genai
     from google.genai import types
 except ImportError:
-    print("ERROR: Missing dependency. Run: pip install google-genai beautifulsoup4")
+    print("ERROR: Run: pip install google-genai")
     sys.exit(1)
 
-# ─── Configuration ────────────────────────────────────────────────────────────
+# ─── Config ───────────────────────────────────────────────────────────────────
 
-API_KEY = os.environ.get("GOOGLE_API_KEY")
-MODEL = "veo-3.1-generate-preview"       # Best realism. Change to veo-2.0-generate-001 for faster/cheaper
-GEMINI_MODEL = "gemini-2.0-flash"        # Used for prompt generation from listing description
-ASPECT_RATIO = "16:9"
-DURATION_SECONDS = 6                      # 4, 6, or 8
+API_KEY       = os.environ.get("GOOGLE_API_KEY")
+MODEL         = "veo-3.1-generate-preview"
+GEMINI_MODEL  = "gemini-2.0-flash"
+ASPECT_RATIO  = "16:9"
+DURATION      = 6
+MAX_PHOTOS    = 6
 
-# Fallback cinematic prompt templates (used when no Zillow description available)
-SCENE_PROMPTS = {
-    "exterior":  "Photorealistic slow gentle aerial push-in toward a grand luxury estate, preserve original lighting and textures, architectural photography, subtle parallax motion, warm natural afternoon light, no people, no stylization",
-    "fountain":  "Photorealistic slow dolly forward through a grand fountain entrance of a luxury estate, circular driveway, ornate fountain, lush tropical landscaping, warm golden light, smooth buyer arrival motion, no people, no stylization",
-    "facade":    "Photorealistic slow pan reveal across the front facade of a grand luxury home, tile roof, manicured landscaping, warm afternoon sunlight, preserve original textures and lighting, no people, no stylization",
-    "interior":  "Photorealistic smooth slow dolly through a grand luxury home interior, soaring ceilings, elegant architecture, warm ambient light, buyer walkthrough perspective, preserve original lighting and materials, no people, no stylization",
-    "pool":      "Photorealistic slow cinematic reveal of a resort-style luxury pool and outdoor living area, shimmering pool water, lush Florida landscaping, golden hour light, smooth camera motion, no people, no stylization",
-    "kitchen":   "Photorealistic slow push-in toward a luxury chef kitchen, high-end appliances, marble countertops, warm task lighting, preserve original textures and materials, no people, no stylization",
-    "bedroom":   "Photorealistic gentle slow pan across a grand primary bedroom suite, elegant furnishings, natural window light, preserve original lighting and textures, no people, no stylization",
-    "bathroom":  "Photorealistic slow reveal of a luxury primary bathroom, marble surfaces, spa-like atmosphere, soft natural light, preserve original materials, no people, no stylization",
-    "living":    "Photorealistic slow dolly through a grand living room with soaring ceilings, elegant furniture, natural light flooding in, preserve original lighting and textures, no people, no stylization",
-    "default":   "Photorealistic slow cinematic camera move through a luxury estate space, preserve original lighting and textures, high-end architectural photography feel, smooth motion, no people, no stylization",
-}
+# ─── Zillow Photo Scraping ────────────────────────────────────────────────────
 
-# ─── Zillow Scraping ──────────────────────────────────────────────────────────
-
-def fetch_listing_description(zillow_url: str) -> dict:
+def scrape_zillow(zillow_url: str, max_photos: int) -> dict:
     """
-    Fetch listing description and key features from a Zillow URL.
-    Returns dict with description, address, price, features.
-    Falls back gracefully if scraping fails.
+    Scrape Zillow listing: description, address, price, and photo URLs.
+    Tries Playwright (full JS rendering) first, falls back to static fetch.
+    Returns: {address, price, description, photo_urls, success}
     """
+    print("\nFetching Zillow listing...")
+
+    html = ""
+
+    # Try Playwright for full JS rendering (best photo coverage)
     try:
-        import urllib.request
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
-        req = urllib.request.Request(zillow_url, headers=headers)
-        with urllib.request.urlopen(req, timeout=15) as response:
-            html = response.read().decode("utf-8")
-
-        # Extract description from meta tag (most reliable, not blocked)
-        desc_match = re.search(r'<meta name="description" content="([^"]+)"', html)
-        og_desc_match = re.search(r'<meta property="og:description" content="([^"]+)"', html)
-
-        # Try to extract full listing description from page JSON
-        json_match = re.search(r'"description":"([^"]{50,})"', html)
-
-        # Extract address
-        addr_match = re.search(r'"streetAddress":"([^"]+)"', html)
-        city_match = re.search(r'"addressLocality":"([^"]+)"', html)
-        state_match = re.search(r'"addressRegion":"([^"]+)"', html)
-
-        # Extract price
-        price_match = re.search(r'"price":(\d+)', html)
-
-        # Extract special features (What's special section)
-        features_match = re.search(r'What\'s special</[^>]+>\s*<[^>]+>([^<]+(?:<[^>]+>[^<]+)*)', html)
-
-        description = ""
-        if json_match:
-            description = json_match.group(1).replace("\\n", " ").replace('\\"', '"')
-        elif og_desc_match:
-            description = og_desc_match.group(1)
-        elif desc_match:
-            description = desc_match.group(1)
-
-        address = ""
-        if addr_match:
-            address = addr_match.group(1)
-            if city_match:
-                address += f", {city_match.group(1)}"
-            if state_match:
-                address += f", {state_match.group(1)}"
-
-        return {
-            "description": description,
-            "address": address,
-            "price": f"${int(price_match.group(1)):,}" if price_match else "",
-            "url": zillow_url,
-            "success": bool(description),
-        }
-
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(user_agent=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ))
+            page.goto(zillow_url, wait_until="networkidle", timeout=30000)
+            # Click "See all photos" if present to load full gallery
+            try:
+                page.click("button:has-text('See all')", timeout=3000)
+                page.wait_for_timeout(2000)
+            except Exception:
+                pass
+            html = page.content()
+            browser.close()
+        print("  Using Playwright (full JS render)")
     except Exception as e:
-        print(f"  Note: Could not fetch Zillow listing ({e}). Using fallback prompts.")
-        return {"description": "", "address": "", "price": "", "url": zillow_url, "success": False}
+        print(f"  Playwright unavailable ({e}) — trying static fetch")
+
+    # Fallback: static urllib fetch
+    if not html:
+        try:
+            req = urllib.request.Request(zillow_url, headers={
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                html = r.read().decode("utf-8")
+            print("  Using static fetch")
+        except Exception as e:
+            print(f"  ERROR fetching page: {e}")
+            return {"success": False, "photo_urls": [], "description": "", "address": "", "price": ""}
+
+    # Extract photo URLs from Zillow CDN
+    photo_urls = []
+    # High-res pattern first
+    for pattern in [
+        r'https://photos\.zillowstatic\.com/fp/[a-f0-9]+-cc_ft_1536\.jpg',
+        r'https://photos\.zillowstatic\.com/fp/[a-f0-9]+-cc_ft_960\.jpg',
+        r'https://photos\.zillowstatic\.com/fp/[a-f0-9]+(?:-[a-z0-9_]+)?\.jpg',
+    ]:
+        found = list(dict.fromkeys(re.findall(pattern, html)))  # dedupe, preserve order
+        # Filter out logos/icons (small files tend to have short hashes)
+        found = [u for u in found if len(re.search(r'/fp/([a-f0-9]+)', u).group(1)) >= 30]
+        if found:
+            photo_urls = found
+            break
+
+    # Upgrade any lower-res URLs to 1536
+    photo_urls = [re.sub(r'-cc_ft_\d+\.jpg$', '-cc_ft_1536.jpg', u) for u in photo_urls]
+    photo_urls = list(dict.fromkeys(photo_urls))[:max_photos * 3]  # grab extras, Gemini will pick best
+
+    # Extract metadata
+    description = ""
+    for pat in [r'"description":"([^"]{50,})"', r'<meta property="og:description" content="([^"]+)"']:
+        m = re.search(pat, html)
+        if m:
+            description = m.group(1).replace("\\n", " ").replace('\\"', '"')
+            break
+
+    address = ""
+    m = re.search(r'"streetAddress":"([^"]+)"', html)
+    if m:
+        address = m.group(1)
+        for key, pat in [("city", r'"addressLocality":"([^"]+)"'), ("state", r'"addressRegion":"([^"]+)"')]:
+            mm = re.search(pat, html)
+            if mm:
+                address += f", {mm.group(1)}"
+
+    price = ""
+    m = re.search(r'"price":(\d+)', html)
+    if m:
+        price = f"${int(m.group(1)):,}"
+
+    print(f"  Address:    {address or 'unknown'}")
+    print(f"  Price:      {price or 'unknown'}")
+    print(f"  Photos found: {len(photo_urls)}")
+    print(f"  Description: {len(description)} chars")
+
+    return {
+        "success": len(photo_urls) > 0,
+        "photo_urls": photo_urls,
+        "description": description,
+        "address": address,
+        "price": price,
+    }
 
 
-# ─── AI Prompt Generation ─────────────────────────────────────────────────────
+def download_photos(photo_urls: list, output_dir: Path, max_photos: int) -> list:
+    """Download photos from Zillow CDN. Returns list of local Paths."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    downloaded = []
+    print(f"\nDownloading up to {max_photos} photos...")
 
-def organize_and_prompt(client, listing: dict, photos: list) -> list:
+    for i, url in enumerate(photo_urls):
+        if len(downloaded) >= max_photos * 2:  # download extras for Gemini to pick from
+            break
+        dest = output_dir / f"photo_{i+1:02d}.jpg"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                data = r.read()
+            # Skip if too small (likely a thumbnail/icon)
+            if len(data) < 30000:
+                continue
+            with open(dest, "wb") as f:
+                f.write(data)
+            downloaded.append(dest)
+            print(f"  [{len(downloaded)}] {dest.name} ({len(data)//1024}KB)")
+        except Exception as e:
+            print(f"  Skipped {url}: {e}")
+
+    return downloaded
+
+
+# ─── Gemini: Select + Order + Prompt ─────────────────────────────────────────
+
+def select_organize_prompt(client, listing: dict, photos: list, max_photos: int) -> list:
     """
-    Use Gemini to:
-    1. Dynamically order photos into the best walkthrough sequence for THIS property
-    2. Generate animation-only prompts per photo (no camera direction, no narrative)
-       — the description is used purely to identify what's in each photo
-       so the model can animate the right details (water shimmer, flame flicker, etc.)
+    Gemini does three things in one call:
+    1. Selects the best max_photos from all downloaded photos
+    2. Orders them into the best walkthrough sequence for this property
+    3. Writes animation-only prompts (no camera direction)
 
-    Returns an ordered list of dicts: [{path, prompt}, ...]
+    Returns ordered list of {path, prompt}
     """
-    if not listing.get("description"):
-        print("  No listing description — using default order and fallback prompts.")
-        return [{"path": p, "prompt": get_fallback_prompt(p.stem)} for p in photos]
-
     photo_list = "\n".join([f"- {p.name}" for p in photos])
-    description = listing["description"]
+    description = listing.get("description", "")
+    address = listing.get("address", "luxury property")
+    price = listing.get("price", "")
+
+    desc_block = f"Listing description:\n{description}\n\n" if description else ""
 
     system_prompt = """You are a video animation specialist for luxury real estate photography.
-Your job is two things:
-1. Decide the best viewing order for a set of listing photos
-2. Write subtle animation prompts that bring each still photo to life
+You select, order, and write animation prompts for listing photos.
 
-Rules you must follow:
-- Do NOT direct any camera movement. No "push-in", "pan", "dolly", "aerial", "fly over". The camera is completely static.
-- Do NOT reference the property story or narrative. No "golf-front", "Isleworth", "luxury estate arrival".
-- ONLY describe what naturally moves within the frame: water, fire, light, leaves, curtains, steam, reflections, shadows.
-- If nothing natural moves in a scene (e.g. a hallway), use: "subtle ambient light shift, dust particles floating, stillness"
-- Every prompt must include: "photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
-- Keep each prompt to 1 sentence.
-- Respond ONLY with valid JSON, no markdown, no explanation."""
+STRICT RULES:
+- Select only the most visually impactful and distinct photos
+- Order them as a natural property walkthrough (exterior → entry → living areas → kitchen → bedrooms → bathrooms → outdoor last)
+- Animation prompts must describe ONLY what naturally moves in the frame: water, fire, light rays, leaves, curtains, steam, reflections, shadows, dust motes
+- ZERO camera movement. No pan, push-in, dolly, zoom, aerial, fly. Camera is 100% static.
+- ZERO narrative references. No property names, no agent language, no "luxury estate arrival"
+- Every prompt ends with: photorealistic, preserve all original textures and colors, no stylization, no people, static camera
+- Respond ONLY with valid JSON, no markdown."""
 
-    user_prompt = f"""Listing description (use only to identify what features appear in each photo — do not use for narrative or camera direction):
-{description}
-
-Photos available (filenames may hint at content):
+    user_prompt = f"""Property: {address} {price}
+{desc_block}Available photos (filenames are numbered in download order, not scene order):
 {photo_list}
 
 Tasks:
-1. Order these photos into the most natural walkthrough sequence for this specific property (exterior first, then entry, main living areas, kitchen, bedrooms, bathrooms, outdoor/pool last — but adapt based on what photos actually exist)
-2. For each photo write an animation-only prompt
+1. Select the best {max_photos} photos that together tell a complete property story
+2. Order them into the ideal walkthrough sequence for this specific property
+3. Write a 1-sentence animation-only prompt for each
 
-Respond ONLY as JSON in this exact format:
+Respond as JSON:
 {{
-  "ordered_photos": [
+  "selected": [
     {{
-      "filename": "01_exterior.jpg",
-      "prompt": "gentle breeze rustles mature palm fronds, dappled sunlight shifts across lawn, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
-    }},
-    {{
-      "filename": "02_pool.jpg",
-      "prompt": "..."
+      "filename": "photo_03.jpg",
+      "prompt": "pool water ripples and shimmers gently, light reflections shift across the surface, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
     }}
   ]
 }}"""
@@ -209,107 +250,77 @@ Respond ONLY as JSON in this exact format:
         raw = re.sub(r"^```[a-z]*\n?", "", raw).rstrip("```").strip()
         data = json.loads(raw)
 
-        ordered = data.get("ordered_photos", [])
         photo_map = {p.name: p for p in photos}
-
         result = []
         seen = set()
-        for item in ordered:
+        for item in data.get("selected", []):
             fname = item.get("filename", "")
             if fname in photo_map and fname not in seen:
                 result.append({"path": photo_map[fname], "prompt": item["prompt"]})
                 seen.add(fname)
 
-        # Append any photos Gemini missed (safety net)
+        # Safety net: fill remaining slots if Gemini returned fewer
         for p in photos:
+            if len(result) >= max_photos:
+                break
             if p.name not in seen:
-                result.append({"path": p, "prompt": get_fallback_prompt(p.stem)})
+                result.append({"path": p, "prompt": fallback_prompt(p.stem)})
 
-        print(f"  Organized {len(result)} photos into walkthrough order with animation prompts.")
-        return result
+        print(f"  Gemini selected {len(result)} photos with animation prompts.")
+        return result[:max_photos]
 
     except Exception as e:
-        print(f"  Could not organize/prompt via Gemini ({e}). Using default order and fallback prompts.")
-        return [{"path": p, "prompt": get_fallback_prompt(p.stem)} for p in photos]
+        print(f"  Gemini selection failed ({e}) — using all downloaded photos with fallback prompts.")
+        return [{"path": p, "prompt": fallback_prompt(p.stem)} for p in photos[:max_photos]]
 
 
-def get_fallback_prompt(filename_stem: str) -> str:
-    """Return a generic animation-only fallback prompt based on scene type."""
-    name = filename_stem.lower()
-    if any(w in name for w in ["pool", "water", "fountain"]):
-        return "pool water shimmers and ripples gently, light reflections dance across surface, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+def fallback_prompt(stem: str) -> str:
+    name = stem.lower()
+    if any(w in name for w in ["pool", "water"]):
+        return "pool water shimmers and ripples gently, light reflections dance across the surface, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+    if any(w in name for w in ["fountain"]):
+        return "fountain water cascades and mists softly, light catches the spray, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
     if any(w in name for w in ["fire", "fireplace", "hearth"]):
-        return "fireplace flames flicker softly, warm light pulses gently on surrounding surfaces, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
-    if any(w in name for w in ["exterior", "front", "facade", "outside", "aerial", "drone"]):
-        return "gentle breeze sways palm fronds and tree canopy, dappled sunlight shifts across lawn, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+        return "fireplace flames flicker softly, warm amber light pulses gently across surrounding surfaces, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+    if any(w in name for w in ["exterior", "front", "facade", "drone", "aerial"]):
+        return "gentle breeze sways palm fronds and tree canopy, dappled sunlight shifts slowly across the lawn, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
     if any(w in name for w in ["kitchen"]):
-        return "subtle ambient light shift, steam wisps near cooktop, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+        return "subtle ambient light shifts across countertops, steam wisps near cooktop, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
     if any(w in name for w in ["bedroom", "bed"]):
         return "sheer curtains drift softly in a gentle breeze, warm sunlight shifts slowly across bedding, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
-    if any(w in name for w in ["living", "lounge", "family"]):
-        return "ambient light shifts gently, dust particles float in sunbeams, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
     if any(w in name for w in ["bath", "shower", "spa"]):
-        return "soft light shifts on marble surfaces, subtle steam drifts near shower, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
-    return "subtle ambient light shift, dust particles floating in stillness, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+        return "soft light shifts on marble surfaces, subtle steam drifts near shower glass, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+    if any(w in name for w in ["living", "lounge", "family"]):
+        return "ambient light shifts gently through windows, dust motes drift in sunbeams, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
+    return "subtle ambient light shift, dust particles float in stillness, photorealistic, preserve all original textures and colors, no stylization, no people, static camera"
 
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
+# ─── Video Generation ─────────────────────────────────────────────────────────
 
-def detect_scene_type(filename: str) -> str:
-    """Guess scene type from filename."""
-    name = filename.lower()
-    for scene in SCENE_PROMPTS:
-        if scene in name:
-            return scene
-    return "default"
+def generate_clip(client, image_path: Path, output_path: Path, prompt: str, model: str, duration: int) -> bool:
+    print(f"\n  [{image_path.name}]")
+    print(f"  Prompt: {prompt[:120]}...")
 
-def image_to_base64(path: Path) -> str:
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
 
-def get_mime_type(path: Path) -> str:
-    ext = path.suffix.lower()
-    return {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}.get(ext.lstrip("."), "image/jpeg")
-
-def sort_photos(photos: list[Path]) -> list[Path]:
-    """Sort by filename number prefix if present, otherwise alphabetically."""
-    def sort_key(p):
-        name = p.stem
-        parts = name.split("_")
-        try:
-            return (int(parts[0]), name)
-        except ValueError:
-            return (999, name)
-    return sorted(photos, key=sort_key)
-
-# ─── Core Generation ──────────────────────────────────────────────────────────
-
-def generate_clip(client, image_path: Path, output_path: Path, prompt: str) -> bool:
-    """Generate a single video clip from an image using Veo."""
-    print(f"\n  Generating: {image_path.name} → {output_path.name}")
-    print(f"  Prompt: {prompt[:100]}...")
-    print(f"  Model: {MODEL}")
-
-    image_data = image_to_base64(image_path)
-    mime_type = get_mime_type(image_path)
+    ext = image_path.suffix.lower().lstrip(".")
+    mime_type = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}.get(ext, "image/jpeg")
 
     try:
         operation = client.models.generate_videos(
-            model=MODEL,
+            model=model,
             prompt=prompt,
-            image=types.Image(
-                image_bytes=base64.b64decode(image_data),
-                mime_type=mime_type,
-            ),
+            image=types.Image(image_bytes=image_bytes, mime_type=mime_type),
             config=types.GenerateVideosConfig(
                 aspect_ratio=ASPECT_RATIO,
-                duration_seconds=DURATION_SECONDS,
+                duration_seconds=duration,
                 number_of_videos=1,
                 enhance_prompt=False,
             ),
         )
 
-        print("  Waiting for generation", end="", flush=True)
+        print("  Generating", end="", flush=True)
         while not operation.done:
             time.sleep(5)
             operation = client.operations.get(operation)
@@ -317,146 +328,125 @@ def generate_clip(client, image_path: Path, output_path: Path, prompt: str) -> b
         print(" done")
 
         if operation.response and operation.response.generated_videos:
-            video = operation.response.generated_videos[0]
-            video_bytes = client.models.get_video(video.video.uri)
+            video_bytes = client.models.get_video(operation.response.generated_videos[0].video.uri)
             with open(output_path, "wb") as f:
                 f.write(video_bytes)
-            size_mb = output_path.stat().st_size / (1024 * 1024)
-            print(f"  Saved: {output_path.name} ({size_mb:.1f} MB)")
+            print(f"  Saved: {output_path.name} ({output_path.stat().st_size // 1024 // 1024}MB)")
             return True
         else:
-            print(f"  ERROR: No video in response")
+            print("  ERROR: No video returned")
             return False
 
     except Exception as e:
         print(f"  ERROR: {e}")
         return False
 
-def stitch_clips(clip_paths: list[Path], output_path: Path):
-    """Stitch clips together using ffmpeg if available."""
+
+def stitch_clips(clip_paths: list, output_path: Path):
+    import subprocess
     try:
-        import subprocess
-        # Check ffmpeg is available
         subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
-
-        # Create concat file
-        concat_file = output_path.parent / "concat.txt"
-        with open(concat_file, "w") as f:
-            for clip in clip_paths:
-                f.write(f"file '{clip.absolute()}'\n")
-
+        concat = output_path.parent / "_concat.txt"
+        with open(concat, "w") as f:
+            for c in clip_paths:
+                f.write(f"file '{c.absolute()}'\n")
         subprocess.run([
             "ffmpeg", "-y", "-f", "concat", "-safe", "0",
-            "-i", str(concat_file),
-            "-c", "copy",
-            str(output_path)
+            "-i", str(concat), "-c", "copy", str(output_path)
         ], capture_output=True, check=True)
+        concat.unlink()
+        print(f"\n  Stitched: {output_path.name}")
+    except Exception:
+        print("\n  ffmpeg not found — clips saved individually. Install ffmpeg to auto-stitch.")
 
-        concat_file.unlink()
-        print(f"\n  Walkthrough stitched: {output_path.name}")
-
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("\n  Note: ffmpeg not found — clips saved individually. Install ffmpeg to auto-stitch.")
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate luxury real estate walkthrough videos")
-    parser.add_argument("--folder", required=True, help="Folder containing listing photos")
-    parser.add_argument("--zillow", default="", help="Zillow listing URL to pull property description")
-    parser.add_argument("--model", default=MODEL, help=f"Veo model to use (default: {MODEL})")
-    parser.add_argument("--duration", type=int, default=DURATION_SECONDS, help="Clip duration in seconds (4, 6, or 8)")
+    parser = argparse.ArgumentParser(description="Generate real estate walkthrough video from a Zillow URL")
+    parser.add_argument("--zillow",   required=True,          help="Zillow listing URL")
+    parser.add_argument("--photos",   type=int, default=MAX_PHOTOS,   help=f"Number of photos to use (default {MAX_PHOTOS})")
+    parser.add_argument("--duration", type=int, default=DURATION,     help="Seconds per clip: 4, 6, or 8 (default 6)")
+    parser.add_argument("--model",    default=MODEL,          help=f"Veo model (default: {MODEL})")
+    parser.add_argument("--output",   default="",             help="Custom output directory (default: auto from address)")
     args = parser.parse_args()
 
     if not API_KEY:
-        print("ERROR: GOOGLE_API_KEY not found. Create a .env file with: GOOGLE_API_KEY=your_key_here")
+        print("ERROR: GOOGLE_API_KEY not set. Add it to your .env file.")
         sys.exit(1)
 
-    folder = Path(args.folder)
-    if not folder.exists():
-        print(f"ERROR: Folder not found: {folder}")
-        sys.exit(1)
-
-    # Find photos
-    extensions = {".jpg", ".jpeg", ".png", ".webp"}
-    photos = [p for p in folder.iterdir() if p.suffix.lower() in extensions]
-    photos = sort_photos(photos)
-
-    if not photos:
-        print(f"ERROR: No photos found in {folder}")
-        sys.exit(1)
-
-    print(f"\nListing Video Generator")
-    print(f"{'─' * 40}")
-    print(f"Folder:   {folder}")
-    print(f"Photos:   {len(photos)} found")
-    print(f"Model:    {args.model}")
+    print("\nListing Video Generator")
+    print("─" * 40)
+    print(f"Zillow:   {args.zillow}")
+    print(f"Photos:   {args.photos}")
     print(f"Duration: {args.duration}s per clip")
-    print(f"{'─' * 40}")
+    print(f"Model:    {args.model}")
+    print("─" * 40)
 
-    # Init client
     client = genai.Client(api_key=API_KEY)
 
-    # Step 1: Fetch listing description from Zillow
-    listing = {"description": "", "address": "", "price": "", "success": False}
-    if args.zillow:
-        print(f"\nFetching listing description from Zillow...")
-        listing = fetch_listing_description(args.zillow)
-        if listing["success"]:
-            print(f"  Address: {listing['address']}")
-            print(f"  Price:   {listing['price']}")
-            print(f"  Description ({len(listing['description'])} chars): {listing['description'][:120]}...")
+    # Step 1: Scrape Zillow
+    listing = scrape_zillow(args.zillow, args.photos)
+    if not listing["success"]:
+        print("ERROR: Could not fetch photos from Zillow. Try installing Playwright:")
+        print("  pip install playwright && playwright install chromium")
+        sys.exit(1)
 
-            # Save description for reference
-            output_folder = folder / "output"
-            output_folder.mkdir(exist_ok=True)
-            story_path = output_folder / "listing_story.txt"
-            with open(story_path, "w") as f:
-                f.write(f"Address: {listing['address']}\n")
-                f.write(f"Price: {listing['price']}\n")
-                f.write(f"URL: {listing['url']}\n\n")
-                f.write(f"Description:\n{listing['description']}\n")
-            print(f"  Saved to: listing_story.txt")
+    # Step 2: Set up output folder from address
+    if args.output:
+        output_dir = Path(args.output)
     else:
-        print("\nNo Zillow URL provided — using fallback scene prompts.")
-        print("Tip: Add --zillow https://www.zillow.com/homedetails/... for property-specific prompts.")
+        safe_address = re.sub(r'[^\w\s-]', '', listing["address"]).strip().replace(" ", "_")[:60]
+        output_dir = Path("listings") / (safe_address or "listing")
 
-    # Step 2: Organize photos and generate animation prompts via Gemini
-    print(f"\nOrganizing photos and building animation prompts...")
-    scene_plan = organize_and_prompt(client, listing, photos)
+    photos_dir = output_dir / "photos"
+    clips_dir  = output_dir / "output"
+    clips_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save plan for reference
-    output_folder = folder / "output"
-    output_folder.mkdir(exist_ok=True)
-    plan_path = output_folder / "scene_plan.json"
-    with open(plan_path, "w") as f:
+    # Save listing info
+    with open(output_dir / "listing_info.txt", "w") as f:
+        f.write(f"Address: {listing['address']}\n")
+        f.write(f"Price:   {listing['price']}\n")
+        f.write(f"URL:     {args.zillow}\n\n")
+        f.write(f"Description:\n{listing['description']}\n")
+
+    # Step 3: Download photos
+    photos = download_photos(listing["photo_urls"], photos_dir, args.photos * 2)
+    if not photos:
+        print("ERROR: No photos downloaded. Zillow may be blocking access.")
+        sys.exit(1)
+
+    # Step 4: Gemini selects, orders, and writes animation prompts
+    print(f"\nSelecting best {args.photos} photos and building animation prompts...")
+    scene_plan = select_organize_prompt(client, listing, photos, args.photos)
+
+    # Save scene plan
+    with open(clips_dir / "scene_plan.json", "w") as f:
         json.dump([{"filename": s["path"].name, "prompt": s["prompt"]} for s in scene_plan], f, indent=2)
-    print(f"  Scene plan saved to: scene_plan.json")
+    print(f"  Scene plan saved → {clips_dir}/scene_plan.json")
+    print(f"  (Review and edit prompts before generating if needed)")
 
-    # Step 3: Generate clips in planned order
-    print(f"\nGenerating video clips...")
+    # Step 5: Generate clips
+    print(f"\nGenerating {len(scene_plan)} video clips with Veo...")
     clip_paths = []
     for i, scene in enumerate(scene_plan, 1):
-        photo = scene["path"]
-        prompt = scene["prompt"]
-        clip_name = f"clip_{i:02d}_{photo.stem}.mp4"
-        output_path = output_folder / clip_name
+        clip_name = f"clip_{i:02d}_{scene['path'].stem}.mp4"
+        clip_path = clips_dir / clip_name
 
-        if output_path.exists():
-            print(f"\n  Skipping (already exists): {clip_name}")
-            clip_paths.append(output_path)
+        if clip_path.exists():
+            print(f"\n  Skipping (exists): {clip_name}")
+            clip_paths.append(clip_path)
             continue
 
-        success = generate_clip(client, photo, output_path, prompt)
-        if success:
-            clip_paths.append(output_path)
+        ok = generate_clip(client, scene["path"], clip_path, scene["prompt"], args.model, args.duration)
+        if ok:
+            clip_paths.append(clip_path)
 
-    # Step 4: Stitch together
+    # Step 6: Stitch
     if len(clip_paths) > 1:
-        walkthrough_path = output_folder / "walkthrough_preview.mp4"
-        stitch_clips(clip_paths, walkthrough_path)
+        stitch_clips(clip_paths, clips_dir / "walkthrough_preview.mp4")
 
-    print(f"\nDone. {len(clip_paths)} clips generated in: {output_folder}")
+    print(f"\nDone — {len(clip_paths)} clips in: {clips_dir.absolute()}")
 
 if __name__ == "__main__":
     main()
