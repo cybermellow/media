@@ -120,19 +120,54 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 @keyframes gridDrift{0%{transform:translate(0,0)}100%{transform:translate(70px,70px)}}
 .hero-content{position:relative;text-align:center;z-index:2;max-width:820px;padding:32px 24px 48px;width:100%;}
 .hero-eyebrow{font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;animation:fadeUp 1s ease 0.3s both;}
-.hero-title{font-family:var(--serif);font-size:clamp(42px,8vw,88px);font-weight:300;line-height:1.0;margin-bottom:22px;animation:fadeUp 1s ease 0.5s both;color:var(--ink);}
+.hero-title{font-family:var(--serif);font-size:clamp(42px,8vw,88px);font-weight:300;line-height:1.0;margin-bottom:18px;animation:fadeUp 1s ease 0.5s both;color:var(--ink);}
 .hero-title em{font-style:italic;color:var(--gold);}
 .hero-sub{font-size:13px;letter-spacing:0.06em;color:var(--ink-soft);max-width:500px;margin:0 auto 20px;line-height:2;animation:fadeUp 1s ease 0.65s both;}
-.turnaround-badge{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(140,106,50,0.35);background:rgba(140,106,50,0.06);padding:9px 18px;margin-bottom:34px;animation:fadeUp 1s ease 0.75s both;flex-wrap:wrap;justify-content:center;}
-.badge-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
-.turnaround-badge span{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 1s ease 0.9s both;}
 .hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
 .hero-scroll span{font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--ink-soft);opacity:0.4;}
 .scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,rgba(140,106,50,0.5),transparent);animation:scrollPulse 2s ease-in-out infinite;}
 @keyframes scrollPulse{0%,100%{opacity:0.4}50%{opacity:1}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* TURNAROUND BADGE — medium brown ombre, luxury feel */
+.turnaround-badge{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(180,140,80,0.45);background:linear-gradient(135deg,#5C3D1A 0%,#7A5228 40%,#6B4520 70%,#4E2E10 100%);padding:11px 22px;margin-bottom:28px;animation:fadeUp 1s ease 0.75s both;flex-wrap:wrap;justify-content:center;box-shadow:0 2px 16px rgba(90,52,16,0.35),inset 0 1px 0 rgba(255,210,140,0.15);}
+.badge-dot{width:7px;height:7px;background:#E8C07A;border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 6px rgba(232,192,122,0.6);}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+.turnaround-badge span{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#F0D49A;text-shadow:0 1px 3px rgba(30,10,0,0.4);}
+
+/* URL BAR */
+.url-bar-wrap{position:relative;width:100%;max-width:640px;margin:0 auto 22px;text-align:left;animation:fadeUp 1s ease 0.72s both;}
+.url-bar{display:flex;align-items:center;background:var(--white);border:1.5px solid rgba(140,106,50,0.3);overflow:visible;box-shadow:0 4px 24px rgba(14,14,16,0.1);position:relative;}
+.url-bar:focus-within{border-color:rgba(140,106,50,0.65);box-shadow:0 4px 32px rgba(140,106,50,0.14);}
+.url-source-btn{display:flex;align-items:center;gap:6px;padding:0 12px;height:50px;cursor:pointer;flex-shrink:0;background:rgba(140,106,50,0.07);border-right:1px solid rgba(140,106,50,0.18);transition:background 0.2s;white-space:nowrap;font-size:11px;font-weight:500;letter-spacing:0.05em;color:var(--ink-mid);font-family:var(--sans);user-select:none;}
+.url-source-btn:hover{background:rgba(140,106,50,0.13);}
+.url-source-btn img{flex-shrink:0;}
+.url-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--ink);padding:0 12px;height:50px;min-width:0;}
+.url-input::placeholder{color:rgba(14,14,16,0.32);}
+.url-submit{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 18px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background 0.3s;flex-shrink:0;}
+.url-submit:hover{background:#1a1612;color:var(--gold);}
+.source-menu{position:absolute;top:calc(100% + 2px);left:0;background:var(--white);border:1px solid rgba(140,106,50,0.2);box-shadow:0 8px 32px rgba(14,14,16,0.14);z-index:500;min-width:220px;display:none;}
+.source-menu.open{display:block;}
+.source-option{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;transition:background 0.15s;}
+.source-option:hover{background:rgba(140,106,50,0.06);}
+.source-name{font-size:12px;font-weight:500;color:var(--ink);}
+.source-url{font-size:10px;color:var(--ink-soft);margin-top:1px;}
+.source-divider{height:1px;background:rgba(140,106,50,0.1);margin:3px 0;}
+.url-meta{display:none;margin-top:3px;background:var(--white);border:1px solid rgba(140,106,50,0.18);padding:11px 14px;}
+.url-meta.show{display:block;}
+.url-meta-spinner{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-soft);}
+.spinner-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:spinBounce 1.2s ease-in-out infinite;}
+.spinner-dot:nth-child(2){animation-delay:0.2s;}
+.spinner-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes spinBounce{0%,80%,100%{transform:scale(0.6);opacity:0.3}40%{transform:scale(1);opacity:1}}
+.url-meta-content{display:flex;align-items:center;gap:12px;}
+.meta-thumb{width:50px;height:38px;background:var(--bg-alt);flex-shrink:0;overflow:hidden;}
+.meta-thumb img{width:100%;height:100%;object-fit:cover;}
+.meta-source{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
+.meta-title{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;}
+.meta-detail{font-size:10px;color:var(--ink-soft);margin-top:2px;}
+.meta-check{flex-shrink:0;margin-left:auto;}
 
 /* STATS */
 .stats-section{border-top:1px solid rgba(168,132,74,0.16);border-bottom:1px solid rgba(168,132,74,0.16);padding:50px 52px;background:var(--bg-card);}
@@ -530,10 +565,17 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 }
 
 @media(max-width:580px){
-  .hero-content{padding:86px 20px 50px;}
+  .hero-content{padding:24px 16px 40px;}
   .hero-title{font-size:clamp(36px,10vw,58px);}
   .hero-actions{flex-direction:column;align-items:center;}
   .btn-primary,.btn-outline,.btn-gold,.btn-dark{width:100%;max-width:320px;text-align:center;}
+  .url-bar-wrap{max-width:100%;padding:0;}
+  .url-bar{flex-wrap:wrap;}
+  .url-source-btn{height:44px;font-size:10px;padding:0 10px;}
+  .url-input{height:44px;font-size:12px;}
+  .url-submit{height:44px;width:100%;justify-content:center;font-size:10px;}
+  .turnaround-badge{padding:9px 14px;gap:7px;}
+  .turnaround-badge span{font-size:8px;letter-spacing:0.1em;}
   .stats-section{padding:28px 16px;}
   .stat-num{font-size:38px;}
   .ba-container{padding:0 16px;}
@@ -604,13 +646,76 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <div class="hero-content">
     <p class="hero-eyebrow">Luxury Real Estate Walkthrough Videos</p>
     <h1 class="hero-title">Your Listings.<br><em>Cinema Quality.</em><br>In 2 Hours.</h1>
-    <p class="hero-sub">We transform your listing URL into a stunning MLS-ready walkthrough video that keeps buyers engaged, drives showings, and helps you win more listings.</p>
+    <p class="hero-sub">Paste your listing link below — we take it from there.</p>
+
+    <!-- URL BAR -->
+    <div class="url-bar-wrap">
+      <div class="url-bar" id="urlBar">
+        <div class="url-source-btn" id="sourceBtn" onclick="toggleSourceMenu()">
+          <img id="sourceIcon" src="https://www.zillow.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;">
+          <span id="sourceLabel">Zillow</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="url-divider"></div>
+        <input class="url-input" id="urlInput" type="url" placeholder="Paste your listing URL here..." autocomplete="off" spellcheck="false">
+        <button class="url-submit" onclick="submitListing()">
+          Order Video
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <!-- Source dropdown -->
+      <div class="source-menu" id="sourceMenu">
+        <div class="source-option" onclick="selectSource('Zillow','https://www.zillow.com/favicon.ico','zillow.com')">
+          <img src="https://www.zillow.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;">
+          <div><div class="source-name">Zillow</div><div class="source-url">zillow.com</div></div>
+        </div>
+        <div class="source-option" onclick="selectSource('Realtor.com','https://www.realtor.com/favicon.ico','realtor.com')">
+          <img src="https://www.realtor.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;">
+          <div><div class="source-name">Realtor.com</div><div class="source-url">realtor.com</div></div>
+        </div>
+        <div class="source-option" onclick="selectSource('Redfin','https://www.redfin.com/favicon.ico','redfin.com')">
+          <img src="https://www.redfin.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;">
+          <div><div class="source-name">Redfin</div><div class="source-url">redfin.com</div></div>
+        </div>
+        <div class="source-divider"></div>
+        <div class="source-option" onclick="selectSource('Google Drive','https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png','drive.google.com')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6.5 20L1 11l5.5-9h11L23 11l-5.5 9z" stroke="#8C6A32" stroke-width="1.5" stroke-linejoin="round"/><path d="M1 11h22M12 2L6.5 11M12 2l5.5 9" stroke="#8C6A32" stroke-width="1.5"/></svg>
+          <div><div class="source-name">Google Drive</div><div class="source-url">Share a Drive link</div></div>
+        </div>
+        <div class="source-option" onclick="selectSource('Dropbox','https://www.dropbox.com/favicon.ico','dropbox.com')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 6L6 9.5l6 3.5 6-3.5L12 6zM6 9.5L12 13l6-3.5M6 16.5L12 13l6 3.5M12 17l-6-3.5M12 17l6-3.5" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div class="source-name">Dropbox</div><div class="source-url">Share a Dropbox link</div></div>
+        </div>
+        <div class="source-option" onclick="selectSource('MLS / Other','','other')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;"><circle cx="7" cy="7" r="6" stroke="#8C6A32" stroke-width="1.2"/><path d="M7 4.5v5M4.5 7h5" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <div><div class="source-name">MLS / Other</div><div class="source-url">Any listing URL</div></div>
+        </div>
+      </div>
+
+      <!-- Metadata preview card -->
+      <div class="url-meta" id="urlMeta">
+        <div class="url-meta-spinner" id="metaSpinner">
+          <div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div>
+          <span>Fetching listing details…</span>
+        </div>
+        <div class="url-meta-content" id="metaContent" style="display:none;">
+          <div class="meta-thumb" id="metaThumb"></div>
+          <div class="meta-info">
+            <div class="meta-source" id="metaSource"></div>
+            <div class="meta-title" id="metaTitle"></div>
+            <div class="meta-detail" id="metaDetail"></div>
+          </div>
+          <svg class="meta-check" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#3a7a3a" stroke-width="1.5"/><path d="M5 9l3 3 5-5" stroke="#3a7a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
     <div class="turnaround-badge">
       <div class="badge-dot"></div>
       <span>2-Hour Turnaround &nbsp;·&nbsp; MLS Compliant &nbsp;·&nbsp; Ready to Upload</span>
     </div>
     <div class="hero-actions">
-      <a href="#" class="btn-primary" onclick="showPage('contact');return false;">Order Your Video Now</a>
       <a href="#" class="btn-outline" onclick="showPage('process');return false;">See How It Works</a>
     </div>
   </div>
@@ -1323,6 +1428,106 @@ setInterval(() => {
     if (cfg && cfg.photos && cfg.photos.length > 1) carouselGo(k, carouselState[k] + 1);
   });
 }, 3500);
+
+/* ── URL BAR ── */
+var currentSource = { label: 'Zillow', icon: 'https://www.zillow.com/favicon.ico', id: 'zillow' };
+
+// Simulated listing metadata per source
+var DEMO_META = {
+  'zillow': { title: '4 bd · 3 ba · 2,840 sqft', detail: 'Single Family · Listed 3 days ago', color: '#006AFF' },
+  'realtor.com': { title: '4 bed · 3 bath · Est. $2,400/mo', detail: 'For Sale · Active listing', color: '#D92228' },
+  'redfin.com': { title: '4 beds · 3 baths · Built 2018', detail: 'Listed by Redfin Agent', color: '#CD1309' },
+  'drive.google.com': { title: 'Shared folder — listing assets', detail: 'Photos & documents', color: '#4285F4' },
+  'dropbox.com': { title: 'Shared Dropbox link', detail: 'Photos & documents ready', color: '#0061FF' },
+  'other': { title: 'Listing URL detected', detail: 'Ready to process', color: '#8C6A32' }
+};
+
+function toggleSourceMenu() {
+  var menu = document.getElementById('sourceMenu');
+  menu.classList.toggle('open');
+}
+
+function selectSource(label, icon, id) {
+  currentSource = { label: label, icon: icon, id: id };
+  document.getElementById('sourceLabel').textContent = label;
+  var img = document.getElementById('sourceIcon');
+  if (icon) { img.src = icon; img.style.display = 'inline'; }
+  else { img.style.display = 'none'; }
+  document.getElementById('sourceMenu').classList.remove('open');
+  // Clear any existing meta preview
+  document.getElementById('urlMeta').classList.remove('show');
+  document.getElementById('urlInput').focus();
+  document.getElementById('urlInput').placeholder = 'Paste your ' + label + ' listing URL…';
+}
+
+function showMetaPreview(url) {
+  if (!url || url.length < 10) { document.getElementById('urlMeta').classList.remove('show'); return; }
+  var meta = document.getElementById('urlMeta');
+  var spinner = document.getElementById('metaSpinner');
+  var content = document.getElementById('metaContent');
+  meta.classList.add('show');
+  spinner.style.display = 'flex';
+  content.style.display = 'none';
+
+  setTimeout(function() {
+    var sourceData = DEMO_META[currentSource.id] || DEMO_META['other'];
+    // Detect source from URL
+    if (url.includes('zillow')) sourceData = DEMO_META['zillow'];
+    else if (url.includes('realtor')) sourceData = DEMO_META['realtor.com'];
+    else if (url.includes('redfin')) sourceData = DEMO_META['redfin.com'];
+    else if (url.includes('drive.google')) sourceData = DEMO_META['drive.google.com'];
+    else if (url.includes('dropbox')) sourceData = DEMO_META['dropbox.com'];
+
+    document.getElementById('metaSource').textContent = currentSource.label;
+    document.getElementById('metaTitle').textContent = sourceData.title;
+    document.getElementById('metaDetail').textContent = sourceData.detail;
+
+    spinner.style.display = 'none';
+    content.style.display = 'flex';
+  }, 900);
+}
+
+function submitListing() {
+  var url = document.getElementById('urlInput').value.trim();
+  // Pass URL to contact form and navigate there
+  showPage('contact');
+  var urlField = document.querySelector('[type="url"]');
+  if (urlField && url) {
+    urlField.value = url;
+    // Highlight the field briefly
+    urlField.style.borderColor = 'rgba(140,106,50,0.6)';
+    setTimeout(function() { urlField.style.borderColor = ''; }, 2000);
+  }
+  // Scroll to form
+  setTimeout(function() {
+    var form = document.getElementById('mainForm');
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 150);
+}
+
+// Listen for URL input changes — show preview after pause
+var metaTimeout;
+document.addEventListener('DOMContentLoaded', function() {
+  var input = document.getElementById('urlInput');
+  if (input) {
+    input.addEventListener('input', function() {
+      clearTimeout(metaTimeout);
+      metaTimeout = setTimeout(function() { showMetaPreview(input.value.trim()); }, 700);
+    });
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') submitListing();
+    });
+  }
+});
+
+// Close source menu on outside click
+document.addEventListener('click', function(e) {
+  var btn = document.getElementById('sourceBtn');
+  var menu = document.getElementById('sourceMenu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
 
 /* ── PAGE ROUTING ── */
 function showPage(id) {
