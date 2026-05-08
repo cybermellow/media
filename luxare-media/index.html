@@ -1233,12 +1233,12 @@ function closeFlow() {
   document.getElementById('flowScreen1').classList.add('active');
 }
 
-function showFlowScreen(n) {
+let showFlowScreen = function(n) {
   document.querySelectorAll('.flow-screen').forEach(s => s.classList.remove('active'));
   document.getElementById('flowScreen' + n).classList.add('active');
   document.getElementById('flowOverlay').scrollTop = 0;
   setFlowStep(n - 1);
-}
+};
 
 function setFlowStep(active) {
   document.querySelectorAll('.flow-step-dot').forEach((d, i) => {
@@ -1397,12 +1397,12 @@ function initStripeElements() {
   }
 }
 
-// Initialize Stripe when order screen becomes visible
-const _origShowFlowScreen = showFlowScreen;
-function showFlowScreen(n) {
-  _origShowFlowScreen(n);
+// Initialize Stripe when order screen becomes visible — hooked into showFlowScreen
+const _showFlowScreenOrig = showFlowScreen;
+showFlowScreen = function(n) {
+  _showFlowScreenOrig(n);
   if (n === 3) setTimeout(initStripeElements, 100);
-}
+};
 
 // Keep pay button amount in sync with promo discounts
 function syncPayAmount() {
