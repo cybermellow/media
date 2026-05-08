@@ -98,12 +98,13 @@ nav.scrolled{border-bottom:1px solid rgba(140,106,50,.2);}
 .url-submit{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 18px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .3s;flex-shrink:0;}
 .url-submit:hover{background:#1a1612;color:var(--gold);}
 /* Google Places autocomplete styling */
-.pac-container{border:1px solid rgba(140,106,50,.2);border-top:none;box-shadow:0 8px 24px rgba(14,14,16,.12);font-family:var(--sans);font-size:12px;border-radius:0;}
-.pac-item{padding:10px 14px;cursor:pointer;border-top:1px solid rgba(140,106,50,.08);color:var(--ink);}
-.pac-item:hover,.pac-item-selected{background:rgba(140,106,50,.06);}
-.pac-item-query{font-weight:500;color:var(--ink);font-size:12px;}
-.pac-matched{color:var(--gold);font-weight:600;}
-.pac-icon{display:none;}
+.pac-container{border:1px solid rgba(140,106,50,.2) !important;border-top:none !important;box-shadow:0 8px 24px rgba(14,14,16,.12) !important;font-family:'Montserrat',sans-serif !important;font-size:12px !important;border-radius:0 !important;background:var(--white) !important;z-index:9999 !important;margin-top:2px !important;}
+.pac-container:after{display:none !important;}
+.pac-item{padding:10px 14px !important;cursor:pointer !important;border-top:1px solid rgba(140,106,50,.08) !important;color:var(--ink) !important;font-family:'Montserrat',sans-serif !important;font-size:12px !important;line-height:1.6 !important;}
+.pac-item:hover,.pac-item-selected{background:rgba(140,106,50,.06) !important;}
+.pac-item-query{font-weight:500 !important;color:#0A0A0C !important;font-size:12px !important;font-family:'Montserrat',sans-serif !important;}
+.pac-matched{color:#8C6A32 !important;font-weight:600 !important;}
+.pac-icon,.pac-icon-marker,.hdpi .pac-icon{display:none !important;width:0 !important;}
 /* STATS */
 .stats-section{border-top:1px solid rgba(140,106,50,.16);border-bottom:1px solid rgba(140,106,50,.16);padding:52px;background:var(--bg-card);}
 .stats-heading{text-align:center;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:32px;}
