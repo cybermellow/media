@@ -6,6 +6,11 @@
 
 const SITE_CONFIG = {
 
+  /* ── STRIPE ──────────────────────────────────────────────── */
+  // Publishable key is safe to be here — it's public-facing
+  // Get it from: stripe.com → Developers → API Keys → Publishable key
+  stripePublishableKey: 'pk_live_51I64hKDmDPdlOwv2VfySyx5Mx8aORcWrqY8LJ7ogBzl0VmZNlMZi5h6f3vntdPw2hFUBVhRqNVh63gIDb0PPEFf300sZ0z9FZd',
+
   /* ── BUSINESS INFO ───────────────────────────────────────── */
   business: {
     name:       'LUXARÉ',
