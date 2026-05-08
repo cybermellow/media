@@ -416,13 +416,11 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 .order-submit:hover{background:var(--gold-dark);}
 .order-submit:disabled{opacity:.6;cursor:wait;}
 .order-note{font-size:10px;color:var(--ink-soft);margin-top:10px;line-height:1.8;text-align:center;}
-/* Stripe Elements */
+/* Stripe Payment Element */
 .stripe-section{margin-top:12px;border:1px solid rgba(140,106,50,.22);background:var(--bg);padding:20px;}
-.stripe-section-label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.stripe-section-label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .stripe-section-label svg{opacity:.5;}
-#stripeCardElement{background:var(--bg-card);border:1px solid rgba(140,106,50,.18);padding:13px 14px;transition:border-color .3s;}
-#stripeCardElement.StripeElement--focus{border-color:rgba(140,106,50,.5);}
-#stripeCardElement.StripeElement--invalid{border-color:#c0392b;}
+#stripePaymentElement{min-height:44px;}
 .stripe-card-error{font-size:10px;color:#c0392b;margin-top:6px;min-height:14px;}
 .stripe-secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:9px;color:var(--ink-soft);letter-spacing:.1em;margin-top:8px;}
 .stripe-secure svg{opacity:.4;}
@@ -960,9 +958,9 @@ footer{padding:56px 52px 34px;background:var(--dark);}
         <div class="stripe-section">
           <div class="stripe-section-label">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="#8C6A32" stroke-width="1.2"/><path d="M1 6h12" stroke="#8C6A32" stroke-width="1.2"/></svg>
-            Card Details — Secured by Stripe
+            Payment — Apple Pay, Google Pay, or Card
           </div>
-          <div id="stripeCardElement"></div>
+          <div id="stripePaymentElement"></div>
           <p class="stripe-card-error" id="stripeCardError"></p>
         </div>
 
@@ -1360,40 +1358,71 @@ function applyOrderPromo() {
 }
 document.getElementById('oPromoInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyOrderPromo(); } });
 
-// ── STRIPE ELEMENTS SETUP ──
-// Your Stripe publishable key — safe to be in frontend code
-// Get it from: stripe.com → Developers → API Keys → Publishable key
+// ── STRIPE PAYMENT ELEMENT SETUP ──
 const STRIPE_PUBLISHABLE_KEY = SITE_CONFIG.stripePublishableKey || 'pk_live_REPLACE_WITH_YOUR_KEY';
 
-let stripeInstance = null;
-let stripeCard     = null;
+let stripeInstance  = null;
+let stripeElements  = null;
+let stripePayEl     = null;
 
-function initStripeElements() {
-  if (stripeInstance) return; // already initialized
+async function initStripeElements() {
+  if (stripeInstance) return;
   try {
     stripeInstance = Stripe(STRIPE_PUBLISHABLE_KEY);
-    const elements = stripeInstance.elements({
-      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap' }],
+
+    // Create PaymentIntent first so we have a clientSecret for the Element
+    const intentRes = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:      document.getElementById('oEmail').value.trim() || 'pending@luxaremedia.com',
+        address:    ORDER.address,
+        listingUrl: ORDER.url,
+        promoCode:  ORDER.promoCode || null,
+        finalPrice: ORDER.finalPrice || PRICING.basePrice,
+      }),
     });
-    stripeCard = elements.create('card', {
-      style: {
-        base: {
-          fontFamily:  '"Montserrat", sans-serif',
-          fontSize:    '13px',
-          fontWeight:  '300',
-          color:       '#0A0A0C',
-          '::placeholder': { color: 'rgba(26,26,28,0.3)' },
+
+    const intentData = await intentRes.json();
+    if (!intentData.clientSecret) throw new Error('No client secret');
+
+    // Store for use in submitOrder
+    ORDER._clientSecret = intentData.clientSecret;
+
+    stripeElements = stripeInstance.elements({
+      clientSecret: intentData.clientSecret,
+      appearance: {
+        theme: 'flat',
+        variables: {
+          colorPrimary:       '#8C6A32',
+          colorBackground:    '#EBEBEC',
+          colorText:          '#0A0A0C',
+          colorDanger:        '#c0392b',
+          fontFamily:         '"Montserrat", sans-serif',
+          fontSizeBase:       '13px',
+          borderRadius:       '0px',
+          spacingUnit:        '4px',
         },
-        invalid: { color: '#c0392b' },
+        rules: {
+          '.Input': { border: '1px solid rgba(140,106,50,0.18)', padding: '12px 14px' },
+          '.Input:focus': { border: '1px solid rgba(140,106,50,0.5)', boxShadow: 'none' },
+          '.Label': { fontSize: '8px', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#5C440F' },
+          '.Tab': { border: '1px solid rgba(140,106,50,0.15)', backgroundColor: '#DEDFE0' },
+          '.Tab--selected': { border: '1px solid rgba(140,106,50,0.5)', backgroundColor: '#EBEBEC' },
+          '.Tab:hover': { backgroundColor: 'rgba(140,106,50,0.06)' },
+        },
       },
-      hidePostalCode: false,
     });
-    stripeCard.mount('#stripeCardElement');
-    stripeCard.on('change', e => {
-      document.getElementById('stripeCardError').textContent = e.error ? e.error.message : '';
+
+    stripePayEl = stripeElements.create('payment', {
+      layout: { type: 'tabs', defaultCollapsed: false },
     });
-  } catch(e) {
-    console.warn('Stripe not initialized:', e.message);
+    stripePayEl.mount('#stripePaymentElement');
+
+  } catch(err) {
+    console.warn('Stripe Payment Element error:', err.message);
+    document.getElementById('stripePaymentElement').innerHTML =
+      '<p style="font-size:11px;color:#888;padding:12px 0;">Payment form unavailable. Please refresh and try again.</p>';
   }
 }
 
@@ -1410,14 +1439,13 @@ function syncPayAmount() {
   if (el) el.textContent = ORDER.finalPrice || PRICING.basePrice;
 }
 
-// ── SCREEN 3: SUBMIT → charge inline ──
+// ── SCREEN 3: SUBMIT ──
 async function submitOrder(e) {
   e.preventDefault();
   const btn = document.getElementById('orderSubmitBtn');
   btn.textContent = 'Processing…';
   btn.disabled = true;
 
-  // Collect form data
   ORDER.firstName  = document.getElementById('oFirstName').value.trim();
   ORDER.lastName   = document.getElementById('oLastName').value.trim();
   ORDER.email      = document.getElementById('oEmail').value.trim();
@@ -1427,37 +1455,48 @@ async function submitOrder(e) {
   if (!ORDER.finalPrice) ORDER.finalPrice = PRICING.basePrice;
 
   try {
-    // 1. Create a PaymentIntent on the server
-    const intentRes = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName:  ORDER.firstName,
-        lastName:   ORDER.lastName,
-        email:      ORDER.email,
-        address:    ORDER.address,
-        listingUrl: ORDER.url,
-        promoCode:  ORDER.promoCode || null,
-        finalPrice: ORDER.finalPrice,
-      }),
-    });
+    // If no clientSecret yet (e.g. email was blank when Stripe initialized), create one now
+    if (!ORDER._clientSecret) {
+      const intentRes = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName:  ORDER.firstName,
+          lastName:   ORDER.lastName,
+          email:      ORDER.email,
+          address:    ORDER.address,
+          listingUrl: ORDER.url,
+          promoCode:  ORDER.promoCode || null,
+          finalPrice: ORDER.finalPrice,
+        }),
+      });
+      const intentData = await intentRes.json();
+      if (!intentData.clientSecret) throw new Error(intentData.error || 'No client secret');
+      ORDER._clientSecret = intentData.clientSecret;
 
-    const intentData = await intentRes.json();
-    if (!intentData.clientSecret) throw new Error(intentData.error || 'No client secret');
+      // Re-initialize elements with the real client secret if needed
+      if (!stripeElements) {
+        stripeElements = stripeInstance.elements({ clientSecret: ORDER._clientSecret });
+        stripePayEl = stripeElements.create('payment');
+        stripePayEl.mount('#stripePaymentElement');
+        await new Promise(r => setTimeout(r, 500)); // brief mount delay
+      }
+    }
 
-    // 2. Confirm card payment with Stripe Elements
-    const { error, paymentIntent } = await stripeInstance.confirmCardPayment(
-      intentData.clientSecret,
-      {
-        payment_method: {
-          card: stripeCard,
+    // Confirm the payment — handles card, Apple Pay, Google Pay automatically
+    const { error } = await stripeInstance.confirmPayment({
+      elements:    stripeElements,
+      confirmParams: {
+        return_url:   window.location.href, // fallback for redirect-based methods
+        payment_method_data: {
           billing_details: {
             name:  `${ORDER.firstName} ${ORDER.lastName}`,
             email: ORDER.email,
           },
         },
-      }
-    );
+      },
+      redirect: 'if_required', // stay on page for card/Apple Pay/Google Pay
+    });
 
     if (error) {
       document.getElementById('stripeCardError').textContent = error.message;
@@ -1466,35 +1505,25 @@ async function submitOrder(e) {
       return;
     }
 
-    if (paymentIntent.status === 'succeeded') {
-      // 3. Send notification + confirmation emails
-      await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName:  ORDER.firstName,
-          lastName:   ORDER.lastName,
-          email:      ORDER.email,
-          phone:      ORDER.phone,
-          brokerage:  ORDER.brokerage,
-          listingUrl: ORDER.url,
-          address:    ORDER.address,
-          notes:      ORDER.notes,
-          promoCode:  ORDER.promoCode || null,
-          finalPrice: ORDER.finalPrice,
-          status:     'paid',
-        }),
-      });
+    // Payment succeeded — send emails and show confirmation
+    await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName:  ORDER.firstName,  lastName: ORDER.lastName,
+        email:      ORDER.email,      phone:    ORDER.phone,
+        brokerage:  ORDER.brokerage,  listingUrl: ORDER.url,
+        address:    ORDER.address,    notes:    ORDER.notes,
+        promoCode:  ORDER.promoCode || null,
+        finalPrice: ORDER.finalPrice, status: 'paid',
+      }),
+    });
 
-      // 4. Show confirmation screen
-      showConfirmation({
-        address:    ORDER.address,
-        firstName:  ORDER.firstName,
-        lastName:   ORDER.lastName,
-        email:      ORDER.email,
-        finalPrice: ORDER.finalPrice,
-      });
-    }
+    showConfirmation({
+      address: ORDER.address, firstName: ORDER.firstName,
+      lastName: ORDER.lastName, email: ORDER.email,
+      finalPrice: ORDER.finalPrice,
+    });
 
   } catch(err) {
     console.error(err);
