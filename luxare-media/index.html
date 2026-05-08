@@ -526,10 +526,11 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     <li><a href="#transform">Our Work</a></li>
     <li><a href="#offer">Services</a></li>
     <li><a href="#process">Process</a></li>
+    <li><a href="#pricing">Pricing</a></li>
     <li><a href="#order">Contact</a></li>
   </ul>
   <div class="nav-right">
-    <a href="#order" class="nav-cta">Order Your Video</a>
+    <a href="#pricing" class="nav-cta">Order Your Video — $199</a>
     <button class="nav-burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -538,7 +539,8 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <a href="#offer" onclick="closeMobileNav()">Services</a>
   <a href="#process" onclick="closeMobileNav()">Process</a>
   <a href="#examples" onclick="closeMobileNav()">Examples</a>
-  <a href="#order" class="mob-cta" onclick="closeMobileNav()">Order Your Video</a>
+  <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
+  <a href="#pricing" class="mob-cta" onclick="closeMobileNav()">Order Your Video — $199</a>
 </div>
 
 <!-- 1. HERO -->
@@ -580,23 +582,19 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 
 <!-- 2. STATS -->
 <section class="stats-section">
-  <p class="stats-heading" id="statsHeading">What Luxury Agents Experience With Luxaré</p>
-  <div class="stats-grid">
+  <p class="stats-heading" id="statsHeading">Our Agents Experience</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
     <div class="stat-card reveal">
       <div class="stat-num" id="statNum0" data-target="3.2" data-suffix="×">3.2×</div>
       <div class="stat-label" id="statLabel0">More Qualified<br>Showing Requests</div>
     </div>
     <div class="stat-card reveal" style="transition-delay:.07s">
-      <div class="stat-num" id="statNum1" data-target="23" data-suffix=" days">23 days</div>
-      <div class="stat-label" id="statLabel1">Faster Sales &amp;<br>Reduced Days on Market</div>
+      <div class="stat-num" id="statNum1">20%</div>
+      <div class="stat-label" id="statLabel1">Below Average DOM —<br>90-Day Avg Reduced to 70</div>
     </div>
     <div class="stat-card reveal" style="transition-delay:.14s">
-      <div class="stat-num" id="statNum2">4–6%</div>
-      <div class="stat-label" id="statLabel2">Higher Perceived Value —<br>Close at Stronger Prices</div>
-    </div>
-    <div class="stat-card reveal" style="transition-delay:.21s">
-      <div class="stat-num" id="statNum3" data-target="4.1" data-suffix="×">4.1×</div>
-      <div class="stat-label" id="statLabel3">More Referrals &amp; Brand<br>Growth Among Luxury Sellers</div>
+      <div class="stat-num" id="statNum2" data-target="4" data-suffix="×">4×</div>
+      <div class="stat-label" id="statLabel2">More Referrals &amp; Brand<br>Growth Among Luxury Sellers</div>
     </div>
   </div>
 </section>
@@ -635,7 +633,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <div class="speed-num reveal" id="speedNum">2 hrs</div>
   <p class="speed-label" id="speedLabel">Average Delivery Time</p>
   <p class="speed-sub" id="speedSub">From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.</p>
-  <div class="reveal"><a href="#order" class="btn-g" id="speedCta">Get Your Video Today</a></div>
+  <div class="reveal"><a href="#pricing" class="btn-g" id="speedCta">Get Your Video — $199</a></div>
 </section>
 
 <!-- 5. OFFER -->
@@ -644,7 +642,6 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 
     <!-- Centered header -->
     <div class="reveal tc" style="margin-bottom:56px;">
-      <span class="offer-text-tag">Premium Media Strategy</span>
       <h3 class="offer-h" style="text-align:center;">One Video.<br><em>Everywhere That Matters.</em></h3>
       <p class="offer-p" style="text-align:center;max-width:580px;margin:0 auto;">Premium properties deserve premium media. A Luxaré walkthrough video isn't just a listing asset — it's a multi-channel marketing tool that works across every platform your buyers and future sellers are already on.</p>
     </div>
@@ -750,19 +747,36 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     </div>
     <div class="benefits-grid">
       <div class="benefit-card reveal">
-        <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L3 8v12h5v-6h6v6h5V8L11 2z" stroke="#8C6A32" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
-        <p class="benefit-q" id="benefitQ0">Win luxury listings — <em>bring your media to the seller walkthrough.</em></p>
-        <p class="benefit-p" id="benefitP0">Walk in with a Luxaré sample video and let your marketing speak before you do. Luxury sellers choose agents who present their home at its highest level. Premium media is your competitive edge in every listing presentation.</p>
+        <div class="benefit-icon">
+          <!-- Trending up arrow — listing presentation win rate -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="2,16 8,9 13,13 20,5" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15,5 20,5 20,10" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="benefit-q" id="benefitQ0">Win More Listing Appointments</p>
+        <p class="benefit-p" id="benefitP0">Luxury sellers expect premium marketing before they sign. Bring a cinematic walkthrough into the listing presentation and instantly separate yourself from agents using standard photography alone. High-end sellers want proof their property will be positioned at a luxury level from day one.</p>
       </div>
       <div class="benefit-card reveal" style="transition-delay:.08s">
-        <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8C6A32" stroke-width="1.4"/><path d="M11 6v5l3.5 2" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <p class="benefit-q" id="benefitQ1">Reduce DOM — <em>28% average reduction in days on market.</em></p>
-        <p class="benefit-p" id="benefitP1">Listings with a Luxaré walkthrough consistently outperform comparable properties in the same zip code. Serious buyers arrive pre-sold, showings convert faster, and your seller closes before the competition even gets a second showing.</p>
+        <div class="benefit-icon">
+          <!-- Trending down arrow — DOM decreasing -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="2,5 8,12 13,8 20,16" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15,16 20,16 20,11" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="19" x2="20" y2="19" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="benefit-q" id="benefitQ1">Reduce Days on Market</p>
+        <p class="benefit-p" id="benefitP1">Luxury walkthroughs create stronger buyer intent before the showing even happens. Buyers spend more time engaging with immersive listings, resulting in more qualified inquiries, faster showing decisions, and reduced friction during the sales cycle.</p>
       </div>
       <div class="benefit-card reveal" style="transition-delay:.16s">
-        <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 14l4-4 4 4 8-8" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 19h16" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <p class="benefit-q" id="benefitQ2">Higher perceived value — <em>protect your commission, close at full price.</em></p>
-        <p class="benefit-p" id="benefitP2">Cinematic media elevates perceived value by 4–6%, keeping offers strong from day one. International and out-of-market buyers get a complete feel for the property before ever stepping inside — expanding your buyer pool and reducing the time to a qualified offer.</p>
+        <div class="benefit-icon">
+          <!-- Dollar / commission protection -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8C6A32" stroke-width="1.4"/><path d="M11 6v1.5M11 14.5V16M8.5 8.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5c0 1.5-2.5 2.5-2.5 4M11 14a.5.5 0 110 1 .5.5 0 010-1" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <p class="benefit-q" id="benefitQ2">Protect Price &amp; Commission Integrity</p>
+        <p class="benefit-p" id="benefitP2">Premium presentation supports premium pricing. When a property feels elevated online, buyers enter negotiations with stronger perceived value. That helps reduce aggressive low offers, strengthens seller confidence, and protects commission positioning.</p>
+      </div>
+      <div class="benefit-card reveal" style="transition-delay:.24s">
+        <div class="benefit-icon">
+          <!-- Referrals / brand / social network -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="5" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><circle cx="4" cy="17" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><circle cx="18" cy="17" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><line x1="11" y1="7.5" x2="4.8" y2="14.5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="7.5" x2="17.2" y2="14.5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/><line x1="6.5" y1="17" x2="15.5" y2="17" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <p class="benefit-q" id="benefitQ3">Compound Brokerage Brand Exposure</p>
+        <p class="benefit-p" id="benefitP3">Every luxury listing becomes a branding asset for future business. A single standout listing doesn't just market the property — it markets the agent behind it. Consistent cinematic media increases shareability, retention, referral potential, and repeat exposure across social platforms.</p>
       </div>
     </div>
   </div>
@@ -782,25 +796,25 @@ footer{padding:56px 52px 34px;background:var(--dark);}
       </div>
       <div class="p-step reveal" style="transition-delay:.08s;">
         <div class="p-step-num">02</div>
-        <div class="p-step-body"><h3 id="stepTitle1">Receive Your Invoice</h3><div class="step-note" id="stepNote1">Invoice arrives within minutes</div></div>
+        <div class="p-step-body"><h3 id="stepTitle1">Confirm Your Details</h3><div class="step-note" id="stepNote1">Review listing info &amp; order details</div></div>
       </div>
       <div class="p-step reveal" style="transition-delay:.16s;">
         <div class="p-step-num">03</div>
-        <div class="p-step-body"><h3 id="stepTitle2">Pay &amp; We Get to Work</h3><div class="step-note" id="stepNote2">Production starts immediately</div></div>
+        <div class="p-step-body"><h3 id="stepTitle2">Place Your Order</h3><div class="step-note" id="stepNote2">Secure checkout — Apple Pay, Google Pay, or card</div></div>
       </div>
       <div class="p-step reveal" style="transition-delay:.24s;">
         <div class="p-step-num">04</div>
-        <div class="p-step-body"><h3 id="stepTitle3">Video in Your Inbox</h3><div class="step-note hl" id="stepNote3">⭑ &nbsp;Delivered in 2 hours</div></div>
+        <div class="p-step-body"><h3 id="stepTitle3">Video in Your Inbox</h3><div class="step-note hl" id="stepNote3">⭑ &nbsp;Under 2 hours — or it's free</div></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CTA STRIP -->
-<section class="cta-strip">
+<section class="cta-strip" id="pricing">
   <h2 class="cta-strip-title reveal" id="ctaTitle">Ready to Transform<br><em>Your Next Listing?</em></h2>
-  <p class="cta-strip-sub reveal" id="ctaSub">Submit a listing URL. Invoice in minutes. Video in 2 hours. MLS-ready.</p>
-  <div class="cta-strip-actions reveal"><a href="#order" class="btn-g"><span id="ctaBtn">Order Your Video</span></a></div>
+  <p class="cta-strip-sub reveal" id="ctaSub">Submit your listing URL, confirm your details, place your order. Video delivered in under 2 hours — or it's free.</p>
+  <div class="cta-strip-actions reveal"><a href="#pricing" class="btn-g" id="ctaBtn">Order Your Video — $199</a></div>
 </section>
 
 <footer>
@@ -998,7 +1012,182 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 
 </div><!-- /flow-overlay -->
 
-<script src="config.js"></script>
+<script>
+/* ── SITE CONFIG (from config.js) ── */
+/* ============================================================
+   LUXARÉ SITE CONFIG
+   Edit this file to update any variable content on the site.
+   Commit to GitHub → Vercel redeploys automatically (~30 sec).
+   ============================================================ */
+
+const SITE_CONFIG = {
+
+  /* ── STRIPE ──────────────────────────────────────────────── */
+  // Publishable key is safe to be here — it's public-facing
+  // Get it from: stripe.com → Developers → API Keys → Publishable key
+  stripePublishableKey: 'pk_live_REPLACE_WITH_YOUR_KEY',
+
+  /* ── BUSINESS INFO ───────────────────────────────────────── */
+  business: {
+    name:       'LUXARÉ',
+    phone:      '(407) 720-5625',
+    phoneHref:  'tel:+14077205625',
+    email:      'support@luxaremedia.com',
+    tagline:    'Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready.',
+  },
+
+  /* ── PRICING & PROMO CODES ───────────────────────────────── */
+  pricing: {
+    basePrice: 199,   // ← change price here — updates everywhere on site
+
+    // Add, remove, or edit promo codes here.
+    // discount: dollars off basePrice
+    // label:    text shown under price when applied
+    // lifetime: true shows the "Locked In Forever" badge
+    promoCodes: {
+      'LIFETIME':  { discount: 100, label: 'Lifetime Rate — Locked In Forever', lifetime: true },
+      'LAUNCH100': { discount: 100, label: '$99 introductory rate' },
+      // 'SUMMER25': { discount: 25, label: '$25 off — Summer promo' },
+      // 'BROKER50': { discount: 50, label: '$50 off for brokerage partners' },
+    },
+  },
+
+  /* ── MEDIA ───────────────────────────────────────────────── */
+  // Add filenames matching files uploaded to your Vercel repo folder.
+  // Photos: 2–4 per property recommended. They cycle in a carousel.
+  // Video: null = shows "coming soon" placeholder.
+  media: {
+    home: {
+      photos: ['property1.jpg'],
+      video:  'property1.mp4',
+    },
+    property1: {
+      name:     'Windermere Estate',
+      location: 'Windermere, FL · $3,500,000',
+      type:     'Luxury Estate · Mediterranean',
+      desc:     'Multiple listing photos transformed into a single cinematic walkthrough. Buyers spent 4× longer on the listing and arrived at showings already sold on the property.',
+      photos:   ['property1.jpg'],
+      // photos: ['property1a.jpg', 'property1b.jpg', 'property1c.jpg'],
+      video:    'property1.mp4',
+    },
+    property2: {
+      name:     'Coming Soon',
+      location: 'Add your next example',
+      type:     'Coming Soon',
+      desc:     'Update this config to add photos and video for this showcase.',
+      photos:   [],   // e.g. ['property2a.jpg', 'property2b.jpg']
+      video:    null, // e.g. 'property2.mp4'
+    },
+    property3: {
+      name:     'Coming Soon',
+      location: 'Add your next example',
+      type:     'Coming Soon',
+      desc:     'Update this config to add photos and video for this showcase.',
+      photos:   [],
+      video:    null,
+    },
+  },
+
+  /* ── HERO SECTION ────────────────────────────────────────── */
+  hero: {
+    eyebrow:  'Luxury Real Estate Walkthrough Videos',
+    titleLine1: 'Your Listings.',
+    titleLine2: 'Cinema Quality.',   // wrapped in <em> italic gold
+    titleLine3: 'Delivered In 2 Hours.',
+    sub:      'Paste your listing link below — we take it from there.',
+    badge:    '2-Hour Turnaround · MLS Compliant · Ready to Upload',
+  },
+
+  /* ── STATS ───────────────────────────────────────────────── */
+  stats: {
+    heading: 'Our Agents Experience',
+    items: [
+      { num: '3.2×',   target: 3.2, suffix: '×',    label: 'More Qualified\nShowing Requests' },
+      { num: '20%',    target: null,suffix: null,    label: 'Below Average DOM —\n90-Day Avg Reduced to 70' },
+      { num: '4×',     target: 4,   suffix: '×',     label: 'More Referrals & Brand\nGrowth Among Luxury Sellers' },
+    ],
+  },
+
+  /* ── STRATEGY TILES (One Video. Everywhere.) ─────────────── */
+  strategyTiles: [
+    { title: 'MLS Upload',               desc: 'Post directly to your MLS listing. Stand out the moment buyers search your zip code.' },
+    { title: 'Brokerage Website',        desc: 'Elevate your profile on your brokerage site. Premium listings attract premium sellers.' },
+    { title: 'Social Media',             desc: 'Instagram, LinkedIn, Facebook. Cinematic content stops the scroll and builds your luxury brand.' },
+    { title: 'Email Campaigns',          desc: 'Send to your buyer list, local partners, and past clients. Video emails get 3× more clicks.' },
+    { title: 'Personal Landing Page',    desc: 'Showcase your portfolio. Every luxury seller you meet will look you up — make it count.' },
+    { title: 'Local Partners & Referrals', desc: 'Share with mortgage brokers, designers, and developers. Premium media builds premium networks.' },
+    { title: 'Listing Presentations',    desc: 'Walk into every seller meeting with a sample video. Close the listing before the competition gets a callback.' },
+    { title: 'International & Remote Buyers', desc: 'Out-of-market and international buyers get a complete feel for the property before they book a flight.' },
+  ],
+
+  /* ── BENEFITS ────────────────────────────────────────────── */
+  benefits: [
+    {
+      title: 'Win More Listing Appointments',
+      titleEm: '',
+      body: 'Luxury sellers expect premium marketing before they sign. Bring a cinematic walkthrough into the listing presentation and instantly separate yourself from agents using standard photography alone. High-end sellers want proof their property will be positioned at a luxury level from day one.',
+    },
+    {
+      title: 'Reduce Days on Market',
+      titleEm: '',
+      body: 'Luxury walkthroughs create stronger buyer intent before the showing even happens. Buyers spend more time engaging with immersive listings, resulting in more qualified inquiries, faster showing decisions, and reduced friction during the sales cycle.',
+    },
+    {
+      title: 'Protect Price & Commission Integrity',
+      titleEm: '',
+      body: 'Premium presentation supports premium pricing. When a property feels elevated online, buyers enter negotiations with stronger perceived value. That helps reduce aggressive low offers, strengthens seller confidence, and protects commission positioning.',
+    },
+    {
+      title: 'Compound Brokerage Brand Exposure',
+      titleEm: '',
+      body: "Every luxury listing becomes a branding asset for future business. A single standout listing doesn't just market the property — it markets the agent behind it. Consistent cinematic media increases shareability, retention, referral potential, and repeat exposure across social platforms.",
+    },
+  ],
+
+  /* ── PROCESS STEPS ───────────────────────────────────────── */
+  process: [
+    { title: 'Submit Your Listing URL',  note: 'Takes less than 60 seconds',                                highlight: false },
+    { title: 'Confirm Your Details',     note: 'Review listing info & order details',                       highlight: false },
+    { title: 'Place Your Order',         note: 'Secure checkout — Apple Pay, Google Pay, or card',          highlight: false },
+    { title: 'Video in Your Inbox',      note: 'Under 2 hours — or it\'s free',                            highlight: true  },
+  ],
+
+  /* ── SPEED BANNER ────────────────────────────────────────── */
+  speed: {
+    num:   '2 hrs',
+    label: 'Average Delivery Time',
+    sub:   'From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.',
+    cta:   'Get Your Video Today',
+  },
+
+  /* ── CTA STRIP ───────────────────────────────────────────── */
+  cta: {
+    title:  'Ready to Transform',
+    titleEm: 'Your Next Listing?', // wrapped in <em>
+    sub:    'Submit a listing URL. Invoice in minutes. Video in 2 hours. MLS-ready.',
+    btnLabel: 'Order Your Video',
+  },
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer: {
+    tagline: 'Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready.',
+    copy:    '© 2025 LUXARÉ Media. All rights reserved.',
+    badge:   'MLS Compliant · 2-Hour Delivery Guaranteed',
+    nav: [
+      { label: 'Our Work',   href: '#transform' },
+      { label: 'Services',   href: '#offer'     },
+      { label: 'Process',    href: '#process'   },
+      { label: 'Order Now',  href: '#order'     },
+    ],
+    contact: [
+      { label: '(407) 720-5625',          href: 'tel:+14077205625'              },
+      { label: 'support@luxaremedia.com', href: 'mailto:support@luxaremedia.com'},
+    ],
+  },
+
+};
+
+</script>
 <script>
 /* ── Pull from SITE_CONFIG (config.js) ── */
 const MEDIA_CONFIG = SITE_CONFIG.media;
