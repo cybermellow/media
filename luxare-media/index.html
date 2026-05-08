@@ -1568,94 +1568,9 @@ document.querySelectorAll('.stat-num[data-target]').forEach(el=>cObs.observe(el)
 
 /* PRICING comes from SITE_CONFIG in config.js */
 
-/* PROMO */
-let appliedDiscount = 0;
-function applyPromo() {
-  const input = document.getElementById('promoInput');
-  const code = input.value.trim().toUpperCase();
-  const msg = document.getElementById('promoMsg');
-  const promo = PRICING.promoCodes[code];
-  if (promo) {
-    appliedDiscount = promo.discount;
-    const newPrice = PRICING.basePrice - appliedDiscount;
-    document.querySelector('.price-orig').classList.add('struck');
-    const priceNew = document.querySelector('.price-new');
-    priceNew.style.display = 'flex';
-    document.getElementById('discountedPrice').textContent = newPrice;
-    document.getElementById('priceLabel').textContent = promo.label;
-    if (promo.lifetime) document.getElementById('lifetimeBadge').style.display = 'block';
-    msg.textContent = promo.lifetime
-      ? `✓ Lifetime deal applied — $${newPrice} per video, locked in forever.`
-      : `✓ Code applied — price updated to $${newPrice}.`;
-    msg.className = 'promo-msg valid';
-    input.disabled = true;
-    document.querySelector('.promo-apply').disabled = true;
-  } else {
-    msg.textContent = "That code doesn't look right. Try again.";
-    msg.className = 'promo-msg invalid';
-  }
-}
-document.getElementById('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } });
+/* ROI calculator removed — no ROI section in current page */
 
-/* ROI CALCULATOR */
-function updateROI() {
-  const price     = parseInt(document.getElementById('roiPrice').value);
-  const comm      = parseFloat(document.getElementById('roiComm').value);
-  const reduction = price * 0.05;                        // 5% price reduction
-  const commFull  = Math.round(price * (comm / 100));    // full commission
-  const commLost  = Math.round(reduction * (comm / 100));// commission lost on reduction
-  const roi       = Math.round(((commLost - PRICING.basePrice) / PRICING.basePrice) * 100);
-  const fmt = n => n.toLocaleString('en-US');
-  const fmtM = n => n >= 1000000 ? '$' + (n/1000000).toFixed(n%1000000===0?0:1) + 'M' : '$' + fmt(n);
-
-  document.getElementById('roiPriceVal').textContent    = fmt(price);
-  document.getElementById('roiCommVal').textContent     = comm.toFixed(2).replace(/\.?0+$/, '').replace(/^(\d+)$/, '$1.0');
-  document.getElementById('roiCommDollar').textContent  = fmt(commFull);
-  document.getElementById('roiCommLost').textContent    = fmt(commLost);
-  document.getElementById('roiPercent').textContent     = fmt(roi);
-
-  // Scenario text
-  document.getElementById('roiScenPx').textContent         = fmtM(price);
-  document.getElementById('roiScenComm').textContent        = comm % 1 === 0 ? comm : comm.toFixed(2).replace(/0+$/, '');
-  document.getElementById('roiScenReduction').textContent   = fmtM(reduction);
-  document.getElementById('roiScenCommLost').textContent    = '$' + fmt(commLost);
-  document.getElementById('roiScenROI').textContent         = fmt(roi);
-}
-updateROI();
-
-/* FORM */
-document.getElementById('mainForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = document.getElementById('mainSubmit');
-  const promoCode = document.getElementById('promoInput').value.trim().toUpperCase();
-  const promo = PRICING.promoCodes[promoCode];
-  const isLifetime = promo && promo.lifetime;
-  const finalPrice = PRICING.basePrice - appliedDiscount;
-  btn.textContent = 'Sending your order…'; btn.disabled = true; btn.style.opacity = '.7';
-  const payload = {
-    firstName:  document.querySelector('[placeholder="Jane"]').value,
-    lastName:   document.querySelector('[placeholder="Smith"]').value,
-    email:      document.querySelector('[type="email"]').value,
-    phone:      document.querySelector('[type="tel"]').value,
-    brokerage:  document.querySelector('[placeholder*="Compass"]').value,
-    listingUrl: document.getElementById('listingUrlField').value,
-    notes:      document.querySelector('textarea').value,
-    promoCode:  promoCode || null,
-    finalPrice
-  };
-  try {
-    const res = await fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (res.ok) {
-      btn.textContent = isLifetime
-        ? `✓ Order Received — Lifetime rate of $${finalPrice} confirmed. Invoice on its way!`
-        : `✓ Order Received — Invoice for $${finalPrice} on its way!`;
-      btn.style.background = '#2d5a2d'; btn.style.color = '#c8f0c8'; btn.style.opacity = '1';
-    } else throw new Error();
-  } catch {
-    btn.textContent = 'Something went wrong — please email us directly.';
-    btn.style.background = '#5a2d2d'; btn.style.color = '#f0c8c8'; btn.style.opacity = '1'; btn.disabled = false;
-  }
-});
+/* Old form handler removed — checkout flow handles orders */
 </script>
 </body>
 </html>
