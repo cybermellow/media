@@ -8,13 +8,8 @@ export default async function handler(req, res) {
   }
 
   const {
-    firstName,
-    lastName,
-    email,
-    address,
-    listingUrl,
-    promoCode,
-    finalPrice,
+    firstName, lastName, email,
+    address, listingUrl, promoCode, finalPrice,
   } = req.body;
 
   if (!email || !finalPrice) {
@@ -25,20 +20,22 @@ export default async function handler(req, res) {
   const isLifetime    = promoCode && promoCode.toUpperCase() === 'LIFETIME';
 
   try {
-    // Create a PaymentIntent — client confirms with card details on frontend
     const paymentIntent = await stripe.paymentIntents.create({
       amount:   amountInCents,
       currency: 'usd',
       receipt_email: email,
+      // Payment Method types — Stripe auto-shows Apple Pay / Google Pay
+      // when the customer's device supports them
+      automatic_payment_methods: { enabled: true },
       description: `LUXARÉ — Cinematic Walkthrough Video · ${address || listingUrl}`,
       metadata: {
-        firstName:  firstName || '',
-        lastName:   lastName  || '',
+        firstName:   firstName  || '',
+        lastName:    lastName   || '',
         email,
-        address:    address    || '',
-        listingUrl: listingUrl || '',
-        promoCode:  promoCode  || '',
-        finalPrice: String(finalPrice),
+        address:     address    || '',
+        listingUrl:  listingUrl || '',
+        promoCode:   promoCode  || '',
+        finalPrice:  String(finalPrice),
         lifetimeRate: String(isLifetime),
       },
     });
