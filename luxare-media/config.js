@@ -9,7 +9,7 @@ const SITE_CONFIG = {
   /* ── STRIPE ──────────────────────────────────────────────── */
   // Publishable key is safe to be here — it's public-facing
   // Get it from: stripe.com → Developers → API Keys → Publishable key
-  stripePublishableKey: 'pk_live_51I64hKDmDPdlOwv2VfySyx5Mx8aORcWrqY8LJ7ogBzl0VmZNlMZi5h6f3vntdPw2hFUBVhRqNVh63gIDb0PPEFf300sZ0z9FZd',
+  stripePublishableKey: 'pk_live_REPLACE_WITH_YOUR_KEY',
 
   /* ── BUSINESS INFO ───────────────────────────────────────── */
   business: {
@@ -84,12 +84,11 @@ const SITE_CONFIG = {
 
   /* ── STATS ───────────────────────────────────────────────── */
   stats: {
-    heading: 'What Luxury Agents Experience With Luxaré',
+    heading: 'Our Agents Experience',
     items: [
-      { num: '3.2×',   target: 3.2, suffix: '×',     label: 'More Qualified\nShowing Requests' },
-      { num: '23 days',target: 23,  suffix: ' days',  label: 'Faster Sales &\nReduced Days on Market' },
-      { num: '4–6%',   target: null,suffix: null,     label: 'Higher Perceived Value —\nClose at Stronger Prices' },
-      { num: '4.1×',   target: 4.1, suffix: '×',      label: 'More Referrals & Brand\nGrowth Among Luxury Sellers' },
+      { num: '3.2×',   target: 3.2, suffix: '×',    label: 'More Qualified\nShowing Requests' },
+      { num: '20%',    target: null,suffix: null,    label: 'Below Average DOM —\n90-Day Avg Reduced to 70' },
+      { num: '4×',     target: 4,   suffix: '×',     label: 'More Referrals & Brand\nGrowth Among Luxury Sellers' },
     ],
   },
 
@@ -108,28 +107,33 @@ const SITE_CONFIG = {
   /* ── BENEFITS ────────────────────────────────────────────── */
   benefits: [
     {
-      title: 'Win luxury listings —',
-      titleEm: 'bring your media to the seller walkthrough.',
-      body: 'Walk in with a Luxaré sample video and let your marketing speak before you do. Luxury sellers choose agents who present their home at its highest level. Premium media is your competitive edge in every listing presentation.',
+      title: 'Win More Listing Appointments',
+      titleEm: '',
+      body: 'Luxury sellers expect premium marketing before they sign. Bring a cinematic walkthrough into the listing presentation and instantly separate yourself from agents using standard photography alone. High-end sellers want proof their property will be positioned at a luxury level from day one.',
     },
     {
-      title: 'Reduce DOM —',
-      titleEm: '28% average reduction in days on market.',
-      body: 'Listings with a Luxaré walkthrough consistently outperform comparable properties in the same zip code. Serious buyers arrive pre-sold, showings convert faster, and your seller closes before the competition even gets a second showing.',
+      title: 'Reduce Days on Market',
+      titleEm: '',
+      body: 'Luxury walkthroughs create stronger buyer intent before the showing even happens. Buyers spend more time engaging with immersive listings, resulting in more qualified inquiries, faster showing decisions, and reduced friction during the sales cycle.',
     },
     {
-      title: 'Higher perceived value —',
-      titleEm: 'protect your commission, close at full price.',
-      body: 'Cinematic media elevates perceived value by 4–6%, keeping offers strong from day one. International and out-of-market buyers get a complete feel for the property before ever stepping inside — expanding your buyer pool and reducing the time to a qualified offer.',
+      title: 'Protect Price & Commission Integrity',
+      titleEm: '',
+      body: 'Premium presentation supports premium pricing. When a property feels elevated online, buyers enter negotiations with stronger perceived value. That helps reduce aggressive low offers, strengthens seller confidence, and protects commission positioning.',
+    },
+    {
+      title: 'Compound Brokerage Brand Exposure',
+      titleEm: '',
+      body: "Every luxury listing becomes a branding asset for future business. A single standout listing doesn't just market the property — it markets the agent behind it. Consistent cinematic media increases shareability, retention, referral potential, and repeat exposure across social platforms.",
     },
   ],
 
   /* ── PROCESS STEPS ───────────────────────────────────────── */
   process: [
-    { title: 'Submit Your Listing URL',    note: 'Takes less than 60 seconds',    highlight: false },
-    { title: 'Receive Your Invoice',       note: 'Invoice arrives within minutes', highlight: false },
-    { title: 'Pay & We Get to Work',       note: 'Production starts immediately',  highlight: false },
-    { title: 'Video in Your Inbox',        note: 'Delivered in 2 hours',           highlight: true  },
+    { title: 'Submit Your Listing URL',  note: 'Takes less than 60 seconds',                                highlight: false },
+    { title: 'Confirm Your Details',     note: 'Review listing info & order details',                       highlight: false },
+    { title: 'Place Your Order',         note: 'Secure checkout — Apple Pay, Google Pay, or card',          highlight: false },
+    { title: 'Video in Your Inbox',      note: 'Under 2 hours — or it\'s free',                            highlight: true  },
   ],
 
   /* ── SPEED BANNER ────────────────────────────────────────── */
