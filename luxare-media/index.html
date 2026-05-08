@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfdCZHPBUiyLLaiMJbqEk4iQ14mhni1sg&libraries=places&callback=initGoogleMaps" async defer></script>
 <style>
 :root{
   --gold:#8C6A32;--gold-light:#B8924E;--gold-dark:#5C440F;--gold-pale:#D4B98A;
@@ -90,30 +91,19 @@ nav.scrolled{border-bottom:1px solid rgba(140,106,50,.2);}
 .url-bar-wrap{position:relative;width:100%;max-width:640px;margin:0 auto 22px;text-align:left;animation:fadeUp 1s ease .72s both;}
 .url-bar{display:flex;align-items:center;background:var(--white);border:1.5px solid rgba(140,106,50,.3);box-shadow:0 4px 24px rgba(14,14,16,.1);position:relative;}
 .url-bar:focus-within{border-color:rgba(140,106,50,.65);}
-.url-source-btn{display:flex;align-items:center;gap:6px;padding:0 12px;height:50px;cursor:pointer;flex-shrink:0;background:rgba(140,106,50,.07);border-right:1px solid rgba(140,106,50,.18);transition:background .2s;white-space:nowrap;font-size:11px;font-weight:500;color:var(--ink-mid);font-family:var(--sans);user-select:none;}
-.url-source-btn:hover{background:rgba(140,106,50,.13);}
+.url-input-type{display:flex;align-items:center;padding:0 12px;height:50px;flex-shrink:0;pointer-events:none;}
+.url-input-icon{display:flex;align-items:center;transition:opacity .25s;}
 .url-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--ink);padding:0 12px;height:50px;min-width:0;}
 .url-input::placeholder{color:rgba(14,14,16,.32);}
 .url-submit{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 18px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .3s;flex-shrink:0;}
 .url-submit:hover{background:#1a1612;color:var(--gold);}
-.source-menu{position:absolute;top:calc(100% + 2px);left:0;background:var(--white);border:1px solid rgba(140,106,50,.2);box-shadow:0 8px 32px rgba(14,14,16,.14);z-index:500;min-width:220px;display:none;}
-.source-menu.open{display:block;}
-.source-option{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;transition:background .15s;}
-.source-option:hover{background:rgba(140,106,50,.06);}
-.source-name{font-size:12px;font-weight:500;color:var(--ink);}
-.source-url{font-size:10px;color:var(--ink-soft);margin-top:1px;}
-.source-divider{height:1px;background:rgba(140,106,50,.1);margin:3px 0;}
-.url-meta{display:none;margin-top:3px;background:var(--white);border:1px solid rgba(140,106,50,.18);padding:11px 14px;}
-.url-meta.show{display:block;}
-.url-meta-spinner{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-soft);}
-.spinner-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:spinBounce 1.2s ease-in-out infinite;}
-.spinner-dot:nth-child(2){animation-delay:.2s;}.spinner-dot:nth-child(3){animation-delay:.4s;}
-.url-meta-content{display:flex;align-items:center;gap:12px;}
-.meta-thumb{width:50px;height:38px;background:var(--bg-alt);flex-shrink:0;}
-.meta-source{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
-.meta-title{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;}
-.meta-detail{font-size:10px;color:var(--ink-soft);margin-top:2px;}
-.meta-check{flex-shrink:0;margin-left:auto;}
+/* Google Places autocomplete styling */
+.pac-container{border:1px solid rgba(140,106,50,.2);border-top:none;box-shadow:0 8px 24px rgba(14,14,16,.12);font-family:var(--sans);font-size:12px;border-radius:0;}
+.pac-item{padding:10px 14px;cursor:pointer;border-top:1px solid rgba(140,106,50,.08);color:var(--ink);}
+.pac-item:hover,.pac-item-selected{background:rgba(140,106,50,.06);}
+.pac-item-query{font-weight:500;color:var(--ink);font-size:12px;}
+.pac-matched{color:var(--gold);font-weight:600;}
+.pac-icon{display:none;}
 /* STATS */
 .stats-section{border-top:1px solid rgba(140,106,50,.16);border-bottom:1px solid rgba(140,106,50,.16);padding:52px;background:var(--bg-card);}
 .stats-heading{text-align:center;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:32px;}
@@ -441,6 +431,26 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 .confirm-next{font-size:11px;color:var(--ink-mid);line-height:2;margin-bottom:24px;border:1px solid rgba(140,106,50,.12);padding:14px 18px;background:rgba(140,106,50,.03);}
 .confirm-next strong{color:var(--gold-dark);font-weight:500;}
 
+/* URL POPUP MODAL */
+.url-popup-overlay{position:fixed;inset:0;z-index:600;background:rgba(10,10,12,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;}
+.url-popup-overlay.active{display:flex;}
+.url-popup{background:var(--bg);border:1px solid rgba(140,106,50,.3);max-width:560px;width:100%;padding:40px 40px 36px;position:relative;box-shadow:0 20px 60px rgba(10,10,12,.25);animation:popupIn .3s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popupIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.url-popup-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:18px;line-height:1;padding:4px;transition:color .2s;}
+.url-popup-close:hover{color:var(--ink);}
+.url-popup-eyebrow{font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.url-popup-title{font-family:var(--serif);font-size:clamp(22px,3vw,30px);font-weight:300;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.url-popup-title em{font-style:italic;color:var(--gold);}
+.url-popup-sub{font-size:11px;color:var(--ink-soft);margin-bottom:22px;line-height:1.8;}
+.url-popup-bar{display:flex;align-items:center;background:var(--white);border:1.5px solid rgba(140,106,50,.3);box-shadow:0 4px 16px rgba(14,14,16,.08);}
+.url-popup-bar:focus-within{border-color:rgba(140,106,50,.65);}
+.url-popup-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--ink);padding:0 14px;height:50px;min-width:0;}
+.url-popup-input::placeholder{color:rgba(14,14,16,.3);}
+.url-popup-btn{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 20px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .3s;flex-shrink:0;}
+.url-popup-btn:hover{background:#1a1612;}
+.url-popup-note{font-size:9px;color:var(--ink-soft);margin-top:10px;text-align:center;letter-spacing:.04em;}
+@media(max-width:580px){.url-popup{padding:28px 20px 24px;}.url-popup-bar{flex-wrap:wrap;}.url-popup-input{height:44px;}.url-popup-btn{height:44px;width:100%;justify-content:center;}}
+
 /* ── RESPONSIVE ── */
 @media(max-width:960px){
   nav{padding:16px 24px;}
@@ -530,7 +540,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     <li><a href="#order">Contact</a></li>
   </ul>
   <div class="nav-right">
-    <a href="#pricing" class="nav-cta">Order Your Video — $199</a>
+    <a href="#pricing" class="nav-cta" onclick="openUrlPopup();return false;">Order Your Video — $199</a>
     <button class="nav-burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -540,7 +550,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <a href="#process" onclick="closeMobileNav()">Process</a>
   <a href="#examples" onclick="closeMobileNav()">Examples</a>
   <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
-  <a href="#pricing" class="mob-cta" onclick="closeMobileNav()">Order Your Video — $199</a>
+  <a href="#pricing" class="mob-cta" onclick="closeMobileNav();openUrlPopup();return false;">Order Your Video — $199</a>
 </div>
 
 <!-- 1. HERO -->
@@ -552,26 +562,13 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     <p class="hero-sub" id="heroSub">Paste your listing link below — we take it from there.</p>
     <div class="url-bar-wrap">
       <div class="url-bar" id="urlBar">
-        <div class="url-source-btn" id="sourceBtn" onclick="toggleSourceMenu()">
-          <img id="sourceIcon" src="https://www.zillow.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;">
-          <span id="sourceLabel">Zillow</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="url-input-type" id="urlInputIcon">
+          <!-- Icon updates based on input type: address vs URL -->
+          <svg id="iconAddress" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.5-2-4.5-4.5-4.5z" stroke="#8C6A32" stroke-width="1.2"/><circle cx="8" cy="6" r="1.5" stroke="#8C6A32" stroke-width="1.2"/></svg>
+          <svg id="iconUrl" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;"><path d="M6.5 9.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L7.5 3.5" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/><path d="M9.5 6.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5l1-1" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/></svg>
         </div>
-        <input class="url-input" id="urlInput" type="url" placeholder="Paste your listing URL here..." autocomplete="off" spellcheck="false">
+        <input class="url-input" id="urlInput" type="text" placeholder="Listing address or paste URL..." autocomplete="off" spellcheck="false">
         <button class="url-submit" onclick="submitListing()">Order Video <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      </div>
-      <div class="source-menu" id="sourceMenu">
-        <div class="source-option" onclick="selectSource('Zillow','https://www.zillow.com/favicon.ico','zillow.com')"><img src="https://www.zillow.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;"><div><div class="source-name">Zillow</div><div class="source-url">zillow.com</div></div></div>
-        <div class="source-option" onclick="selectSource('Realtor.com','https://www.realtor.com/favicon.ico','realtor.com')"><img src="https://www.realtor.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;"><div><div class="source-name">Realtor.com</div><div class="source-url">realtor.com</div></div></div>
-        <div class="source-option" onclick="selectSource('Redfin','https://www.redfin.com/favicon.ico','redfin.com')"><img src="https://www.redfin.com/favicon.ico" onerror="this.style.display='none'" width="14" height="14" style="border-radius:2px;flex-shrink:0;"><div><div class="source-name">Redfin</div><div class="source-url">redfin.com</div></div></div>
-        <div class="source-divider"></div>
-        <div class="source-option" onclick="selectSource('Google Drive','','drive.google.com')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6.5 20L1 11l5.5-9h11L23 11l-5.5 9z" stroke="#8C6A32" stroke-width="1.5" stroke-linejoin="round"/><path d="M1 11h22M12 2L6.5 11M12 2l5.5 9" stroke="#8C6A32" stroke-width="1.5"/></svg><div><div class="source-name">Google Drive</div><div class="source-url">Share a Drive link</div></div></div>
-        <div class="source-option" onclick="selectSource('Dropbox','','dropbox.com')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 6L6 9.5l6 3.5 6-3.5L12 6zM6 9.5L12 13l6-3.5M6 16.5L12 13l6 3.5M12 17l-6-3.5M12 17l6-3.5" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="source-name">Dropbox</div><div class="source-url">Share a Dropbox link</div></div></div>
-        <div class="source-option" onclick="selectSource('MLS / Other','','other')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;"><circle cx="7" cy="7" r="6" stroke="#8C6A32" stroke-width="1.2"/><path d="M7 4.5v5M4.5 7h5" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/></svg><div><div class="source-name">MLS / Other</div><div class="source-url">Any listing URL</div></div></div>
-      </div>
-      <div class="url-meta" id="urlMeta">
-        <div class="url-meta-spinner" id="metaSpinner"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div><span>Fetching listing details…</span></div>
-        <div class="url-meta-content" id="metaContent" style="display:none;"><div class="meta-thumb"></div><div style="flex:1;min-width:0;"><div class="meta-source" id="metaSource"></div><div class="meta-title" id="metaTitle"></div><div class="meta-detail" id="metaDetail"></div></div><svg class="meta-check" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#3a7a3a" stroke-width="1.5"/><path d="M5 9l3 3 5-5" stroke="#3a7a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </div>
     <div class="turnaround-badge"><div class="badge-dot"></div><span id="heroBadge">2-Hour Turnaround &nbsp;·&nbsp; MLS Compliant &nbsp;·&nbsp; Ready to Upload</span></div>
@@ -633,7 +630,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <div class="speed-num reveal" id="speedNum">2 hrs</div>
   <p class="speed-label" id="speedLabel">Average Delivery Time</p>
   <p class="speed-sub" id="speedSub">From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.</p>
-  <div class="reveal"><a href="#pricing" class="btn-g" id="speedCta">Get Your Video — $199</a></div>
+  <div class="reveal"><a href="#pricing" class="btn-g" id="speedCta" onclick="openUrlPopup();return false;">Get Your Video — $199</a></div>
 </section>
 
 <!-- 5. OFFER -->
@@ -732,7 +729,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     </div>
 
     <div class="reveal tc" style="margin-top:44px;transition-delay:.15s;">
-      <a href="#order" class="btn-p"><span id="ctaBtn">Order Your Video</span></a>
+      <a href="#order" class="btn-p" onclick="openUrlPopup();return false;"><span id="ctaBtn">Order Your Video</span></a>
     </div>
 
   </div>
@@ -814,19 +811,37 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 <section class="cta-strip" id="pricing">
   <h2 class="cta-strip-title reveal" id="ctaTitle">Ready to Transform<br><em>Your Next Listing?</em></h2>
   <p class="cta-strip-sub reveal" id="ctaSub">Submit your listing URL, confirm your details, place your order. Video delivered in under 2 hours — or it's free.</p>
-  <div class="cta-strip-actions reveal"><a href="#pricing" class="btn-g" id="ctaBtn">Order Your Video — $199</a></div>
+  <div class="cta-strip-actions reveal"><a href="#pricing" class="btn-g" id="ctaBtn" onclick="openUrlPopup();return false;">Order Your Video — $199</a></div>
 </section>
 
 <footer>
   <div class="footer-inner">
     <div class="footer-grid">
       <div><div class="footer-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div><p class="footer-tagline" id="footerTagline">Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready, and built to turn listings into experiences buyers remember.</p></div>
-      <div class="footer-col"><h5>Navigate</h5><ul><li><a href="#transform">Our Work</a></li><li><a href="#offer">Services</a></li><li><a href="#process">Process</a></li><li><a href="#examples">Examples</a></li><li><a href="#order">Order Now</a></li></ul></div>
-      <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+14077205625">(407) 720-5625</a></li><li><a href="mailto:support@luxaremedia.com">support@luxaremedia.com</a></li><li><a href="#order">Order a Video</a></li></ul></div>
+      <div class="footer-col"><h5>Navigate</h5><ul><li><a href="#transform">Our Work</a></li><li><a href="#offer">Services</a></li><li><a href="#process">Process</a></li><li><a href="#examples">Examples</a></li><li><a href="#order" onclick="openUrlPopup();return false;">Order Now</a></li></ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+14077205625">(407) 720-5625</a></li><li><a href="mailto:support@luxaremedia.com">support@luxaremedia.com</a></li><li><a href="#order" onclick="openUrlPopup();return false;">Order a Video</a></li></ul></div>
     </div>
     <div class="footer-bottom"><p id="footerCopy">© 2025 LUXARÉ Media. All rights reserved.</p><p id="footerBadge">MLS Compliant · 2-Hour Delivery Guaranteed</p></div>
   </div>
 </footer>
+
+<!-- URL ORDER POPUP -->
+<div class="url-popup-overlay" id="urlPopup" onclick="closeUrlPopup(event)">
+  <div class="url-popup">
+    <button class="url-popup-close" onclick="closeUrlPopup()" aria-label="Close">✕</button>
+    <p class="url-popup-eyebrow">Get Started</p>
+    <h2 class="url-popup-title">Paste Your<br><em>Listing URL</em></h2>
+    <p class="url-popup-sub">We'll pull the listing details and walk you through the rest in under 2 minutes.</p>
+    <div class="url-popup-bar">
+      <input class="url-popup-input" id="popupUrlInput" type="text" placeholder="Listing address or paste URL..." autocomplete="off" spellcheck="false">
+      <button class="url-popup-btn" onclick="submitPopupUrl()">
+        Order Video
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <p class="url-popup-note">Zillow · Realtor.com · Redfin · Google Drive · Dropbox · MLS &amp; more</p>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════
      CHECKOUT FLOW OVERLAY
@@ -1026,6 +1041,7 @@ const SITE_CONFIG = {
   // Publishable key is safe to be here — it's public-facing
   // Get it from: stripe.com → Developers → API Keys → Publishable key
   stripePublishableKey: 'pk_live_REPLACE_WITH_YOUR_KEY',
+  googlePlacesKey: 'AIzaSyDfdCZHPBUiyLLaiMJbqEk4iQ14mhni1sg',
 
   /* ── BUSINESS INFO ───────────────────────────────────────── */
   business: {
@@ -1318,37 +1334,129 @@ function carouselNext(k){carouselGo(k,carouselState[k]+1);}
 setInterval(()=>['home',1,2,3].forEach(k=>{const cfg=MEDIA_CONFIG[typeof k==='number'?'property'+k:k];if(cfg&&cfg.photos&&cfg.photos.length>1)carouselGo(k,carouselState[k]+1);}),3500);
 
 /* URL BAR */
-var currentSource={label:'Zillow',id:'zillow.com'};
-var DEMO_META={'zillow.com':{title:'4 bd · 3 ba · 2,840 sqft',detail:'Single Family · Listed 3 days ago'},'realtor.com':{title:'4 bed · 3 bath · Est. $2,400/mo',detail:'For Sale · Active listing'},'redfin.com':{title:'4 beds · 3 baths · Built 2018',detail:'Listed by Redfin Agent'},'drive.google.com':{title:'Shared folder — listing assets',detail:'Photos & documents'},'dropbox.com':{title:'Shared Dropbox link',detail:'Photos & documents ready'},'other':{title:'Listing URL detected',detail:'Ready to process'}};
-function toggleSourceMenu(){document.getElementById('sourceMenu').classList.toggle('open');}
-function selectSource(label,icon,id){
-  currentSource={label,id};
-  document.getElementById('sourceLabel').textContent=label;
-  const img=document.getElementById('sourceIcon');
-  if(icon){img.src=icon;img.style.display='inline';}else{img.style.display='none';}
-  document.getElementById('sourceMenu').classList.remove('open');
-  document.getElementById('urlMeta').classList.remove('show');
-  document.getElementById('urlInput').placeholder='Paste your '+label+' listing URL…';
+/* ── SMART URL / ADDRESS INPUT ── */
+var smartInput = { mode: 'address', value: '', address: '', placeId: '' };
+var placesAutocomplete = null;
+
+function isUrl(str) {
+  return /^https?:\/\//i.test(str) || /^(zillow|realtor|redfin|drive\.google|dropbox)\./i.test(str) || (str.includes('.com/') && !str.includes(' '));
 }
-function showMetaPreview(url){
-  if(!url||url.length<10){document.getElementById('urlMeta').classList.remove('show');return;}
-  document.getElementById('urlMeta').classList.add('show');
-  document.getElementById('metaSpinner').style.display='flex';
-  document.getElementById('metaContent').style.display='none';
-  setTimeout(()=>{
-    var d=DEMO_META[currentSource.id]||DEMO_META['other'];
-    if(url.includes('zillow'))d=DEMO_META['zillow.com'];
-    else if(url.includes('realtor'))d=DEMO_META['realtor.com'];
-    else if(url.includes('redfin'))d=DEMO_META['redfin.com'];
-    else if(url.includes('drive.google'))d=DEMO_META['drive.google.com'];
-    else if(url.includes('dropbox'))d=DEMO_META['dropbox.com'];
-    document.getElementById('metaSource').textContent=currentSource.label;
-    document.getElementById('metaTitle').textContent=d.title;
-    document.getElementById('metaDetail').textContent=d.detail;
-    document.getElementById('metaSpinner').style.display='none';
-    document.getElementById('metaContent').style.display='flex';
-  },900);
+
+function detectSource(url) {
+  if (url.includes('zillow'))       return 'Zillow';
+  if (url.includes('realtor'))      return 'Realtor.com';
+  if (url.includes('redfin'))       return 'Redfin';
+  if (url.includes('drive.google')) return 'Google Drive';
+  if (url.includes('dropbox'))      return 'Dropbox';
+  return 'Listing URL';
 }
+
+function updateInputIcon(mode) {
+  document.getElementById('iconAddress').style.display = mode === 'address' ? 'block' : 'none';
+  document.getElementById('iconUrl').style.display     = mode === 'url'     ? 'block' : 'none';
+}
+
+function initPlacesAutocomplete() {
+  if (placesAutocomplete || typeof google === 'undefined') return;
+  const input = document.getElementById('urlInput');
+  placesAutocomplete = new google.maps.places.Autocomplete(input, {
+    types: ['address'],
+    componentRestrictions: { country: 'us' },
+    fields: ['formatted_address', 'place_id', 'address_components', 'name'],
+  });
+  placesAutocomplete.addListener('place_changed', () => {
+    const place = placesAutocomplete.getPlace();
+    if (place.formatted_address) {
+      smartInput.mode    = 'address';
+      smartInput.address = place.formatted_address;
+      smartInput.value   = place.formatted_address;
+      smartInput.placeId = place.place_id || '';
+      updateInputIcon('address');
+    }
+  });
+}
+
+// Init Places when Google Maps loads
+window.initGoogleMaps = function() { initPlacesAutocomplete(); };
+
+// Also try on first keypress in case async loaded
+document.getElementById('urlInput').addEventListener('focus', initPlacesAutocomplete);
+
+document.getElementById('urlInput').addEventListener('input', function() {
+  const val = this.value.trim();
+  if (isUrl(val)) {
+    smartInput.mode  = 'url';
+    smartInput.value = val;
+    smartInput.address = detectSource(val) + ' listing';
+    updateInputIcon('url');
+    // Disable Places autocomplete while URL is typed
+    if (placesAutocomplete) google.maps.event.clearInstanceListeners(this);
+  } else {
+    if (smartInput.mode === 'url') {
+      // Switched back to address — re-init autocomplete
+      smartInput.mode = 'address';
+      placesAutocomplete = null;
+      initPlacesAutocomplete();
+    }
+    updateInputIcon('address');
+    smartInput.value = val;
+  }
+});
+/* ── URL POPUP ── */
+function openUrlPopup() {
+  document.getElementById('urlPopup').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('popupUrlInput').focus(), 100);
+}
+
+function closeUrlPopup(e) {
+  // Close if clicking the overlay background (not the popup itself)
+  if (e && e.target !== document.getElementById('urlPopup')) return;
+  document.getElementById('urlPopup').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function submitPopupUrl() {
+  const val = document.getElementById('popupUrlInput').value.trim();
+  if (!val) { document.getElementById('popupUrlInput').focus(); return; }
+  document.getElementById('urlPopup').classList.remove('active');
+  document.body.style.overflow = '';
+  smartInput.value = val;
+  if (!smartInput.address) smartInput.address = val;
+  openFlow(val);
+}
+
+document.getElementById('popupUrlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitPopupUrl();
+  if (e.key === 'Escape') closeUrlPopup();
+});
+document.getElementById('popupUrlInput').addEventListener('focus', () => {
+  // Init Places autocomplete on popup input too
+  if (typeof google !== 'undefined' && !popupPlacesAC) {
+    const inp = document.getElementById('popupUrlInput');
+    popupPlacesAC = new google.maps.places.Autocomplete(inp, {
+      types: ['address'], componentRestrictions: { country: 'us' },
+      fields: ['formatted_address', 'place_id'],
+    });
+    popupPlacesAC.addListener('place_changed', () => {
+      const p = popupPlacesAC.getPlace();
+      if (p.formatted_address) {
+        smartInput.address = p.formatted_address;
+        smartInput.value   = p.formatted_address;
+      }
+    });
+  }
+});
+var popupPlacesAC = null;
+
+// Also close popup on Escape key globally
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('urlPopup').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
 /* ══════════════════════════════════════════
    CHECKOUT FLOW
 ══════════════════════════════════════════ */
@@ -1401,10 +1509,13 @@ function detectSource(url) {
 }
 
 // Open the flow overlay
-function openFlow(url) {
-  if (!url || url.length < 8) { alert('Please paste a valid listing URL first.'); return; }
-  ORDER.url = url;
-  ORDER.source = detectSource(url);
+function openFlow(val) {
+  if (!val || val.length < 5) { alert('Please enter a listing address or URL.'); return; }
+  ORDER.url    = val;
+  ORDER.source = isUrl(val) ? detectSource(val) : 'address';
+  // Store confirmed address for the order form
+  if (smartInput.address) ORDER.address = smartInput.address;
+  else ORDER.address = val;
   document.getElementById('flowOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
   setFlowStep(0);
@@ -1748,18 +1859,19 @@ function showConfirmation(data) {
 
 // Update submitListing to open the flow instead of scrolling
 function submitListing() {
-  const url = document.getElementById('urlInput').value.trim();
-  openFlow(url);
+  const val = document.getElementById('urlInput').value.trim();
+  if (!val) { alert('Please enter a listing address or URL.'); return; }
+  // Pass value — openFlow handles both addresses and URLs
+  smartInput.value = val;
+  if (!smartInput.address) smartInput.address = val;
+  openFlow(val);
 }
 
 // Also save order to sessionStorage before Stripe redirect (for confirmation screen)
 const _origSubmit = submitOrder;
 
 
-var mt;
-document.getElementById('urlInput').addEventListener('input',function(){clearTimeout(mt);mt=setTimeout(()=>showMetaPreview(this.value.trim()),700);});
-document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitListing();});
-document.addEventListener('click',e=>{var btn=document.getElementById('sourceBtn'),menu=document.getElementById('sourceMenu');if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target))menu.classList.remove('open');});
+document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitListing(); });
 
 /* NAV */
 const nav=document.getElementById('nav');
