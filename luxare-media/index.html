@@ -68,7 +68,7 @@ nav.scrolled{border-bottom:1px solid rgba(140,106,50,.2);}
 @keyframes playPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,.3)}50%{box-shadow:0 0 0 18px rgba(201,169,110,0)}}
 @keyframes scanline{from{top:0;opacity:0}10%{opacity:1}90%{opacity:1}to{top:100%;opacity:0}}
 @keyframes spinBounce{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
- 
+
 /* HERO */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg);}
 .grid-lines{position:absolute;inset:0;opacity:.07;background-image:linear-gradient(rgba(140,106,50,1) 1px,transparent 1px),linear-gradient(90deg,rgba(140,106,50,1) 1px,transparent 1px);background-size:70px 70px;animation:gridDrift 22s linear infinite;}
@@ -191,7 +191,7 @@ nav.scrolled{border-bottom:1px solid rgba(140,106,50,.2);}
 .benefit-q{font-family:var(--serif);font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.35;margin-bottom:12px;color:var(--ink);}
 .benefit-q em{font-style:italic;color:var(--gold);}
 .benefit-p{font-size:12px;line-height:2;color:var(--ink);}
- 
+
 /* ROI CALCULATOR */
 .roi-section{padding:96px 52px;background:var(--bg);}
 .roi-inner{max-width:900px;margin:0 auto;}
@@ -318,7 +318,120 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 .footer-col ul li a:hover{color:var(--gold-light);}
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:26px;border-top:1px solid rgba(245,241,234,.07);flex-wrap:wrap;gap:8px;}
 .footer-bottom p{font-size:10px;color:rgba(245,241,234,.45);letter-spacing:.05em;}
- 
+
+/* ══════════════════════════════════════════
+   CHECKOUT FLOW OVERLAY
+══════════════════════════════════════════ */
+.flow-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;overflow-y:auto;}
+.flow-overlay.active{display:flex;}
+.flow-screen{display:none;flex:1;flex-direction:column;}
+.flow-screen.active{display:flex;}
+.flow-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid rgba(140,106,50,.15);background:rgba(222,223,224,.97);backdrop-filter:blur(12px);flex-shrink:0;}
+.flow-logo{font-family:var(--serif);font-size:20px;letter-spacing:.15em;color:var(--ink);}
+.flow-back{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);transition:color .2s;font-family:var(--sans);}
+.flow-back:hover{color:var(--ink);}
+.flow-steps{display:flex;align-items:center;gap:6px;}
+.flow-step-dot{width:8px;height:8px;border-radius:50%;background:rgba(140,106,50,.2);transition:background .3s;}
+.flow-step-dot.active{background:var(--gold);}
+.flow-step-dot.done{background:var(--gold-dark);}
+/* SCREEN 1: LOADER */
+.loader-screen{align-items:center;justify-content:center;min-height:calc(100vh - 65px);background:var(--dark);}
+.loader-inner{text-align:center;max-width:460px;padding:40px 24px;width:100%;}
+.loader-ring{width:72px;height:72px;border:2px solid rgba(140,106,50,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 32px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-title{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--white);margin-bottom:8px;}
+.loader-title em{font-style:italic;color:var(--gold-light);}
+.loader-url{font-size:10px;color:rgba(245,241,234,.3);letter-spacing:.04em;margin-bottom:32px;word-break:break-all;max-width:360px;margin-left:auto;margin-right:auto;}
+.loader-steps{display:flex;flex-direction:column;gap:10px;text-align:left;border:1px solid rgba(140,106,50,.15);padding:20px 24px;}
+.loader-step{display:flex;align-items:center;gap:12px;font-size:11px;color:rgba(245,241,234,.25);letter-spacing:.04em;transition:color .4s;}
+.loader-step.done{color:rgba(245,241,234,.7);}
+.loader-step.active{color:var(--gold-light);}
+.loader-step-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.ls-spinner{width:12px;height:12px;border:1.5px solid rgba(140,106,50,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+.ls-check{color:#6bbf6b;font-size:14px;line-height:1;}
+.ls-wait{width:6px;height:6px;border-radius:50%;background:rgba(245,241,234,.12);margin:auto;}
+/* SCREEN 2: PREVIEW */
+.preview-screen{align-items:center;justify-content:flex-start;padding:48px 24px;min-height:calc(100vh - 65px);background:var(--bg);}
+.preview-inner{width:100%;max-width:700px;margin:0 auto;}
+.preview-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.preview-title{font-family:var(--serif);font-size:clamp(22px,3.5vw,36px);font-weight:300;color:var(--ink);margin-bottom:28px;line-height:1.2;}
+.preview-card{border:1px solid rgba(140,106,50,.2);background:var(--bg-card);overflow:hidden;margin-bottom:20px;}
+.preview-photo{height:240px;background:#1a1a1c;position:relative;overflow:hidden;}
+.preview-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.preview-source-badge{position:absolute;top:12px;left:12px;background:rgba(10,10,12,.8);border:1px solid rgba(140,106,50,.3);padding:4px 10px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-light);}
+.preview-details{padding:24px 26px;}
+.preview-address{font-family:var(--serif);font-size:clamp(17px,2.5vw,24px);font-weight:300;color:var(--ink);margin-bottom:6px;}
+.preview-meta{font-size:11px;color:var(--ink-soft);margin-bottom:16px;}
+.preview-specs{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:18px;}
+.preview-spec{padding:12px 8px;text-align:center;border:1px solid rgba(140,106,50,.1);background:var(--bg);}
+.preview-spec-val{font-family:var(--serif);font-size:20px;font-weight:300;color:var(--gold);}
+.preview-spec-lbl{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;}
+.preview-agent{display:flex;align-items:center;gap:12px;border-top:1px solid rgba(140,106,50,.1);padding-top:14px;}
+.preview-agent-avatar{width:36px;height:36px;border-radius:50%;background:rgba(140,106,50,.1);border:1px solid rgba(140,106,50,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--serif);font-size:14px;color:var(--gold);}
+.preview-agent-name{font-size:12px;font-weight:500;color:var(--ink);}
+.preview-agent-brokerage{font-size:10px;color:var(--ink-soft);}
+.preview-field-anim{opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease;}
+.preview-field-anim.shown{opacity:1;transform:none;}
+.preview-disclaimer{font-size:10px;color:var(--ink-soft);line-height:1.7;margin-bottom:20px;padding:10px 14px;border-left:2px solid rgba(140,106,50,.25);}
+.preview-actions{display:flex;gap:12px;flex-wrap:wrap;}
+/* SCREEN 3: ORDER */
+.order-screen{align-items:center;justify-content:flex-start;padding:48px 24px;min-height:calc(100vh - 65px);background:var(--bg);}
+.order-inner{width:100%;max-width:600px;margin:0 auto;}
+.order-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.order-title{font-family:var(--serif);font-size:clamp(22px,3vw,34px);font-weight:300;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.order-sub{font-size:12px;color:var(--ink-soft);margin-bottom:28px;line-height:1.8;}
+.order-listing-pill{display:flex;align-items:flex-start;gap:10px;border:1px solid rgba(140,106,50,.2);background:rgba(140,106,50,.04);padding:10px 14px;margin-bottom:24px;font-size:11px;color:var(--ink-mid);line-height:1.6;}
+.order-listing-pill strong{color:var(--ink);font-weight:500;display:block;margin-bottom:2px;}
+.order-form{display:flex;flex-direction:column;gap:3px;}
+.order-row{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.order-group{display:flex;flex-direction:column;}
+.order-group label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:6px;padding:0 2px;}
+.order-group input,.order-group textarea{background:var(--bg-card);border:1px solid rgba(140,106,50,.18);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:300;padding:12px 14px;outline:none;transition:border-color .3s;width:100%;}
+.order-group input:focus,.order-group textarea:focus{border-color:rgba(140,106,50,.5);}
+.order-group input::placeholder,.order-group textarea::placeholder{color:rgba(26,26,28,.28);}
+.order-group textarea{resize:none;height:76px;}
+.order-price-row{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(140,106,50,.22);background:var(--bg);padding:18px 20px;margin-top:8px;flex-wrap:wrap;gap:12px;}
+.order-price-amount{font-family:var(--serif);font-size:38px;font-weight:300;color:var(--ink);line-height:1;display:flex;align-items:baseline;gap:8px;}
+.order-price-amount sup{font-family:var(--sans);font-size:14px;color:var(--gold);vertical-align:super;}
+.order-price-orig{transition:all .4s;}
+.order-price-orig.struck{text-decoration:line-through;opacity:.38;font-size:26px;}
+.order-price-new{display:none;color:var(--gold);}
+.order-price-new sup{color:var(--gold);}
+.order-price-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-top:4px;}
+.order-lifetime-badge{display:none;font-size:8px;letter-spacing:.15em;text-transform:uppercase;background:var(--gold);color:var(--white);padding:3px 8px;margin-top:5px;width:fit-content;}
+.order-price-includes{display:flex;flex-direction:column;gap:5px;}
+.order-price-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-mid);}
+.order-promo{display:flex;gap:2px;margin-top:3px;}
+.order-promo input{flex:1;background:var(--bg-card);border:1px solid rgba(140,106,50,.18);color:var(--ink);font-family:var(--sans);font-size:12px;padding:11px 13px;outline:none;transition:border-color .3s;}
+.order-promo input:focus{border-color:rgba(140,106,50,.42);}
+.order-promo input::placeholder{color:rgba(26,26,28,.25);}
+.order-promo-btn{background:transparent;border:1px solid rgba(140,106,50,.3);color:var(--gold);font-family:var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:0 15px;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.order-promo-btn:hover{background:var(--gold);color:var(--white);}
+.order-promo-btn:disabled{opacity:.35;cursor:default;}
+.order-promo-msg{font-size:10px;margin-top:5px;min-height:14px;}
+.order-promo-msg.valid{color:#3a7a3a;font-weight:500;}
+.order-promo-msg.invalid{color:#a03a3a;}
+.order-submit{width:100%;background:var(--gold);color:var(--white);border:none;cursor:pointer;padding:17px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;transition:background .3s;margin-top:10px;}
+.order-submit:hover{background:var(--gold-dark);}
+.order-submit:disabled{opacity:.6;cursor:wait;}
+.order-note{font-size:10px;color:var(--ink-soft);margin-top:10px;line-height:1.8;text-align:center;}
+/* SCREEN 4: CONFIRMATION */
+.confirm-screen{align-items:center;justify-content:center;min-height:calc(100vh - 65px);padding:48px 24px;background:var(--bg);}
+.confirm-inner{max-width:500px;width:100%;text-align:center;}
+.confirm-icon{width:72px;height:72px;border:1.5px solid rgba(140,106,50,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;animation:confirmPop .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes confirmPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.confirm-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.confirm-title{font-family:var(--serif);font-size:clamp(24px,4vw,40px);font-weight:300;color:var(--ink);margin-bottom:12px;line-height:1.2;}
+.confirm-title em{font-style:italic;color:var(--gold);}
+.confirm-sub{font-size:13px;color:var(--ink-mid);line-height:2;margin-bottom:28px;font-weight:400;}
+.confirm-details{border:1px solid rgba(140,106,50,.18);background:var(--bg-card);padding:22px 26px;margin-bottom:24px;text-align:left;}
+.confirm-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(140,106,50,.08);}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-row-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);flex-shrink:0;}
+.confirm-row-val{font-size:12px;color:var(--ink);text-align:right;word-break:break-word;}
+.confirm-next{font-size:11px;color:var(--ink-mid);line-height:2;margin-bottom:24px;border:1px solid rgba(140,106,50,.12);padding:14px 18px;background:rgba(140,106,50,.03);}
+.confirm-next strong{color:var(--gold-dark);font-weight:500;}
+
 /* ── RESPONSIVE ── */
 @media(max-width:960px){
   nav{padding:16px 24px;}
@@ -396,7 +509,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
- 
+
 <!-- NAV -->
 <nav id="nav">
   <a href="#hero" class="nav-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></a>
@@ -418,14 +531,14 @@ footer{padding:56px 52px 34px;background:var(--dark);}
   <a href="#examples" onclick="closeMobileNav()">Examples</a>
   <a href="#order" class="mob-cta" onclick="closeMobileNav()">Order Your Video</a>
 </div>
- 
+
 <!-- 1. HERO -->
 <section class="hero" id="hero">
   <div class="grid-lines"></div>
   <div class="hero-content">
-    <p class="hero-eyebrow">Luxury Real Estate Walkthrough Videos</p>
-    <h1 class="hero-title">Your Listings.<br><em>Cinema Quality.</em><br>Delivered In 2 Hours.</h1>
-    <p class="hero-sub">Paste your listing link below — we take it from there.</p>
+    <p class="hero-eyebrow" id="heroEyebrow">Luxury Real Estate Walkthrough Videos</p>
+    <h1 class="hero-title" id="heroTitle">Your Listings.<br><em>Cinema Quality.</em><br>Delivered In 2 Hours.</h1>
+    <p class="hero-sub" id="heroSub">Paste your listing link below — we take it from there.</p>
     <div class="url-bar-wrap">
       <div class="url-bar" id="urlBar">
         <div class="url-source-btn" id="sourceBtn" onclick="toggleSourceMenu()">
@@ -450,35 +563,35 @@ footer{padding:56px 52px 34px;background:var(--dark);}
         <div class="url-meta-content" id="metaContent" style="display:none;"><div class="meta-thumb"></div><div style="flex:1;min-width:0;"><div class="meta-source" id="metaSource"></div><div class="meta-title" id="metaTitle"></div><div class="meta-detail" id="metaDetail"></div></div><svg class="meta-check" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#3a7a3a" stroke-width="1.5"/><path d="M5 9l3 3 5-5" stroke="#3a7a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </div>
-    <div class="turnaround-badge"><div class="badge-dot"></div><span>2-Hour Turnaround &nbsp;·&nbsp; MLS Compliant &nbsp;·&nbsp; Ready to Upload</span></div>
+    <div class="turnaround-badge"><div class="badge-dot"></div><span id="heroBadge">2-Hour Turnaround &nbsp;·&nbsp; MLS Compliant &nbsp;·&nbsp; Ready to Upload</span></div>
     <div class="hero-actions"><a href="#process" class="btn-o">See How It Works</a></div>
   </div>
   <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
 </section>
- 
+
 <!-- 2. STATS -->
 <section class="stats-section">
-  <p class="stats-heading">What Luxury Agents Experience With Luxaré</p>
+  <p class="stats-heading" id="statsHeading">What Luxury Agents Experience With Luxaré</p>
   <div class="stats-grid">
     <div class="stat-card reveal">
-      <div class="stat-num" data-target="3.2" data-suffix="×">3.2×</div>
-      <div class="stat-label">More Qualified<br>Showing Requests</div>
+      <div class="stat-num" id="statNum0" data-target="3.2" data-suffix="×">3.2×</div>
+      <div class="stat-label" id="statLabel0">More Qualified<br>Showing Requests</div>
     </div>
     <div class="stat-card reveal" style="transition-delay:.07s">
-      <div class="stat-num" data-target="23" data-suffix=" days">23 days</div>
-      <div class="stat-label">Faster Sales &amp;<br>Reduced Days on Market</div>
+      <div class="stat-num" id="statNum1" data-target="23" data-suffix=" days">23 days</div>
+      <div class="stat-label" id="statLabel1">Faster Sales &amp;<br>Reduced Days on Market</div>
     </div>
     <div class="stat-card reveal" style="transition-delay:.14s">
-      <div class="stat-num">4–6%</div>
-      <div class="stat-label">Higher Perceived Value —<br>Close at Stronger Prices</div>
+      <div class="stat-num" id="statNum2">4–6%</div>
+      <div class="stat-label" id="statLabel2">Higher Perceived Value —<br>Close at Stronger Prices</div>
     </div>
     <div class="stat-card reveal" style="transition-delay:.21s">
-      <div class="stat-num" data-target="4.1" data-suffix="×">4.1×</div>
-      <div class="stat-label">More Referrals &amp; Brand<br>Growth Among Luxury Sellers</div>
+      <div class="stat-num" id="statNum3" data-target="4.1" data-suffix="×">4.1×</div>
+      <div class="stat-label" id="statLabel3">More Referrals &amp; Brand<br>Growth Among Luxury Sellers</div>
     </div>
   </div>
 </section>
- 
+
 <!-- 3. TRANSFORM -->
 <section class="transform-section" id="transform">
   <div class="ba-container">
@@ -507,29 +620,29 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     </div>
   </div>
 </section>
- 
+
 <!-- 4. SPEED -->
 <section class="speed-banner">
-  <div class="speed-num reveal">2 hrs</div>
-  <p class="speed-label">Average Delivery Time</p>
-  <p class="speed-sub">From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.</p>
-  <div class="reveal"><a href="#order" class="btn-g">Get Your Video Today</a></div>
+  <div class="speed-num reveal" id="speedNum">2 hrs</div>
+  <p class="speed-label" id="speedLabel">Average Delivery Time</p>
+  <p class="speed-sub" id="speedSub">From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.</p>
+  <div class="reveal"><a href="#order" class="btn-g" id="speedCta">Get Your Video Today</a></div>
 </section>
- 
+
 <!-- 5. OFFER -->
 <section class="offer-teaser" id="offer">
   <div style="max-width:1100px;margin:0 auto;">
- 
+
     <!-- Centered header -->
     <div class="reveal tc" style="margin-bottom:56px;">
       <span class="offer-text-tag">Premium Media Strategy</span>
       <h3 class="offer-h" style="text-align:center;">One Video.<br><em>Everywhere That Matters.</em></h3>
       <p class="offer-p" style="text-align:center;max-width:580px;margin:0 auto;">Premium properties deserve premium media. A Luxaré walkthrough video isn't just a listing asset — it's a multi-channel marketing tool that works across every platform your buyers and future sellers are already on.</p>
     </div>
- 
+
     <!-- Use-case tiles grid -->
-    <div class="use-grid reveal" style="transition-delay:.1s;">
- 
+    <div class="use-grid reveal" id="strategyGrid" style="transition-delay:.1s;">
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="13" rx="1.5" stroke="#8C6A32" stroke-width="1.3"/><path d="M2 7h16" stroke="#8C6A32" stroke-width="1.3"/><circle cx="10" cy="12" r="2" stroke="#8C6A32" stroke-width="1.3"/></svg>
@@ -539,7 +652,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Post directly to your MLS listing. Stand out the moment buyers search your zip code.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M10 2c0 0-4 3.5-4 8s4 8 4 8M10 2c0 0 4 3.5 4 8s-4 8-4 8M2 10h16" stroke="#8C6A32" stroke-width="1.3"/></svg>
@@ -549,7 +662,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Elevate your profile on your brokerage site. Premium listings attract premium sellers.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="4" stroke="#8C6A32" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14.5" cy="5.5" r="1" fill="#8C6A32"/></svg>
@@ -559,7 +672,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Instagram, LinkedIn, Facebook. Cinematic content stops the scroll and builds your luxury brand.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 4h14v10H3z" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/><path d="M3 4l7 6 7-6" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/></svg>
@@ -569,7 +682,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Send to your buyer list, local partners, and past clients. Video emails get 3× more clicks.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L2 7v11h5v-5h6v5h5V7L10 2z" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/></svg>
@@ -579,7 +692,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Showcase your portfolio. Every luxury seller you meet will look you up — make it count.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="3" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14" cy="5" r="2" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14" cy="15" r="2" stroke="#8C6A32" stroke-width="1.3"/><path d="M10 7.5l2.5-1.5M10 8.5l2.5 5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -589,7 +702,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Share with mortgage brokers, designers, and developers. Premium media builds premium networks.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17l4-4 4 4 8-8" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -599,7 +712,7 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Walk into every seller meeting with a sample video. Close the listing before the competition gets a callback.</p>
         </div>
       </div>
- 
+
       <div class="use-tile">
         <div class="use-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3" stroke="#8C6A32" stroke-width="1.3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -609,16 +722,16 @@ footer{padding:56px 52px 34px;background:var(--dark);}
           <p class="use-desc">Out-of-market and international buyers get a complete feel for the property before they book a flight.</p>
         </div>
       </div>
- 
+
     </div>
- 
+
     <div class="reveal tc" style="margin-top:44px;transition-delay:.15s;">
-      <a href="#order" class="btn-p">Order Your Video — $199</a>
+      <a href="#order" class="btn-p"><span id="ctaBtn">Order Your Video</span></a>
     </div>
- 
+
   </div>
 </section>
- 
+
 <!-- 6. BENEFITS -->
 <section class="benefits-section">
   <div class="benefits-inner">
@@ -629,23 +742,23 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     <div class="benefits-grid">
       <div class="benefit-card reveal">
         <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L3 8v12h5v-6h6v6h5V8L11 2z" stroke="#8C6A32" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
-        <p class="benefit-q">Win luxury listings — <em>bring your media to the seller walkthrough.</em></p>
-        <p class="benefit-p">Walk in with a Luxaré sample video and let your marketing speak before you do. Luxury sellers choose agents who present their home at its highest level. Premium media is your competitive edge in every listing presentation.</p>
+        <p class="benefit-q" id="benefitQ0">Win luxury listings — <em>bring your media to the seller walkthrough.</em></p>
+        <p class="benefit-p" id="benefitP0">Walk in with a Luxaré sample video and let your marketing speak before you do. Luxury sellers choose agents who present their home at its highest level. Premium media is your competitive edge in every listing presentation.</p>
       </div>
       <div class="benefit-card reveal" style="transition-delay:.08s">
         <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8C6A32" stroke-width="1.4"/><path d="M11 6v5l3.5 2" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <p class="benefit-q">Reduce DOM — <em>28% average reduction in days on market.</em></p>
-        <p class="benefit-p">Listings with a Luxaré walkthrough consistently outperform comparable properties in the same zip code. Serious buyers arrive pre-sold, showings convert faster, and your seller closes before the competition even gets a second showing.</p>
+        <p class="benefit-q" id="benefitQ1">Reduce DOM — <em>28% average reduction in days on market.</em></p>
+        <p class="benefit-p" id="benefitP1">Listings with a Luxaré walkthrough consistently outperform comparable properties in the same zip code. Serious buyers arrive pre-sold, showings convert faster, and your seller closes before the competition even gets a second showing.</p>
       </div>
       <div class="benefit-card reveal" style="transition-delay:.16s">
         <div class="benefit-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 14l4-4 4 4 8-8" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 19h16" stroke="#8C6A32" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <p class="benefit-q">Higher perceived value — <em>protect your commission, close at full price.</em></p>
-        <p class="benefit-p">Cinematic media elevates perceived value by 4–6%, keeping offers strong from day one. International and out-of-market buyers get a complete feel for the property before ever stepping inside — expanding your buyer pool and reducing the time to a qualified offer.</p>
+        <p class="benefit-q" id="benefitQ2">Higher perceived value — <em>protect your commission, close at full price.</em></p>
+        <p class="benefit-p" id="benefitP2">Cinematic media elevates perceived value by 4–6%, keeping offers strong from day one. International and out-of-market buyers get a complete feel for the property before ever stepping inside — expanding your buyer pool and reducing the time to a qualified offer.</p>
       </div>
     </div>
   </div>
 </section>
- 
+
 <!-- 7. PROCESS -->
 <section class="process-section" id="process">
   <div class="process-inner">
@@ -656,54 +769,304 @@ footer{padding:56px 52px 34px;background:var(--dark);}
     <div class="process-steps">
       <div class="p-step reveal">
         <div class="p-step-num">01</div>
-        <div class="p-step-body"><h3>Submit Your Listing URL</h3><div class="step-note">Takes less than 60 seconds</div></div>
+        <div class="p-step-body"><h3 id="stepTitle0">Submit Your Listing URL</h3><div class="step-note" id="stepNote0">Takes less than 60 seconds</div></div>
       </div>
       <div class="p-step reveal" style="transition-delay:.08s;">
         <div class="p-step-num">02</div>
-        <div class="p-step-body"><h3>Receive Your Invoice</h3><div class="step-note">Invoice arrives within minutes</div></div>
+        <div class="p-step-body"><h3 id="stepTitle1">Receive Your Invoice</h3><div class="step-note" id="stepNote1">Invoice arrives within minutes</div></div>
       </div>
       <div class="p-step reveal" style="transition-delay:.16s;">
         <div class="p-step-num">03</div>
-        <div class="p-step-body"><h3>Pay &amp; We Get to Work</h3><div class="step-note">Production starts immediately</div></div>
+        <div class="p-step-body"><h3 id="stepTitle2">Pay &amp; We Get to Work</h3><div class="step-note" id="stepNote2">Production starts immediately</div></div>
       </div>
       <div class="p-step reveal" style="transition-delay:.24s;">
         <div class="p-step-num">04</div>
-        <div class="p-step-body"><h3>Video in Your Inbox</h3><div class="step-note hl">⭑ &nbsp;Delivered in 2 hours</div></div>
+        <div class="p-step-body"><h3 id="stepTitle3">Video in Your Inbox</h3><div class="step-note hl" id="stepNote3">⭑ &nbsp;Delivered in 2 hours</div></div>
       </div>
     </div>
   </div>
 </section>
- 
+
 <!-- CTA STRIP -->
 <section class="cta-strip">
-  <h2 class="cta-strip-title reveal">Ready to Transform<br>Your Next <em>Listing?</em></h2>
-  <p class="cta-strip-sub reveal">Submit a listing URL. Invoice in minutes. Video in 2 hours. MLS-ready.</p>
-  <div class="cta-strip-actions reveal"><a href="#order" class="btn-g">Order Your Video — $199</a></div>
+  <h2 class="cta-strip-title reveal" id="ctaTitle">Ready to Transform<br><em>Your Next Listing?</em></h2>
+  <p class="cta-strip-sub reveal" id="ctaSub">Submit a listing URL. Invoice in minutes. Video in 2 hours. MLS-ready.</p>
+  <div class="cta-strip-actions reveal"><a href="#order" class="btn-g"><span id="ctaBtn">Order Your Video</span></a></div>
 </section>
- 
+
 <footer>
   <div class="footer-inner">
     <div class="footer-grid">
-      <div><div class="footer-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div><p class="footer-tagline">Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready, and built to turn listings into experiences buyers remember.</p></div>
+      <div><div class="footer-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div><p class="footer-tagline" id="footerTagline">Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready, and built to turn listings into experiences buyers remember.</p></div>
       <div class="footer-col"><h5>Navigate</h5><ul><li><a href="#transform">Our Work</a></li><li><a href="#offer">Services</a></li><li><a href="#process">Process</a></li><li><a href="#examples">Examples</a></li><li><a href="#order">Order Now</a></li></ul></div>
       <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+14077205625">(407) 720-5625</a></li><li><a href="mailto:support@luxaremedia.com">support@luxaremedia.com</a></li><li><a href="#order">Order a Video</a></li></ul></div>
     </div>
-    <div class="footer-bottom"><p>© 2025 LUXARÉ Media. All rights reserved.</p><p>MLS Compliant · 2-Hour Delivery Guaranteed</p></div>
+    <div class="footer-bottom"><p id="footerCopy">© 2025 LUXARÉ Media. All rights reserved.</p><p id="footerBadge">MLS Compliant · 2-Hour Delivery Guaranteed</p></div>
   </div>
 </footer>
- 
+
+<!-- ══════════════════════════════════════════
+     CHECKOUT FLOW OVERLAY
+══════════════════════════════════════════ -->
+<div class="flow-overlay" id="flowOverlay">
+
+  <!-- Shared nav bar -->
+  <div class="flow-nav">
+    <div class="flow-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div>
+    <div class="flow-steps">
+      <div class="flow-step-dot active" id="dot0"></div>
+      <div class="flow-step-dot" id="dot1"></div>
+      <div class="flow-step-dot" id="dot2"></div>
+      <div class="flow-step-dot" id="dot3"></div>
+    </div>
+    <button class="flow-back" onclick="closeFlow()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to site
+    </button>
+  </div>
+
+  <!-- SCREEN 1: LOADER (dark) -->
+  <div class="flow-screen loader-screen active" id="flowScreen1">
+    <div class="loader-inner">
+      <div class="loader-ring"></div>
+      <h2 class="loader-title">Pulling your <em>listing details</em></h2>
+      <p class="loader-url" id="loaderUrl"></p>
+      <div class="loader-steps">
+        <div class="loader-step" id="lstep0">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Connecting to listing platform</span>
+        </div>
+        <div class="loader-step" id="lstep1">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Reading property address &amp; details</span>
+        </div>
+        <div class="loader-step" id="lstep2">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Fetching photos &amp; listing specs</span>
+        </div>
+        <div class="loader-step" id="lstep3">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Identifying listing agent</span>
+        </div>
+        <div class="loader-step" id="lstep4">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Preparing your order preview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: LISTING PREVIEW -->
+  <div class="flow-screen preview-screen" id="flowScreen2">
+    <div class="preview-inner">
+      <p class="preview-eyebrow">Listing Confirmed</p>
+      <h2 class="preview-title">Does this look right?</h2>
+      <div class="preview-card">
+        <div class="preview-photo">
+          <div id="previewPhotoWrap" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1a1a1c;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:.18;"><rect x="4" y="8" width="40" height="30" rx="2" stroke="#F1F1F2" stroke-width="1.5"/><circle cx="18" cy="22" r="5" stroke="#F1F1F2" stroke-width="1.5"/><path d="M4 32l10-10 8 8 8-8 14 12" stroke="#F1F1F2" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="preview-source-badge" id="previewSource">Zillow</div>
+        </div>
+        <div class="preview-details">
+          <div class="preview-field-anim" id="prevFieldAddr">
+            <p class="preview-address" id="previewAddress">123 Luxury Lane, Windermere FL 34786</p>
+            <p class="preview-meta" id="previewMeta">Listed for $2,400,000 · Active</p>
+          </div>
+          <div class="preview-specs preview-field-anim" id="prevFieldSpecs">
+            <div class="preview-spec"><div class="preview-spec-val" id="prevBeds">5</div><div class="preview-spec-lbl">Beds</div></div>
+            <div class="preview-spec"><div class="preview-spec-val" id="prevBaths">4.5</div><div class="preview-spec-lbl">Baths</div></div>
+            <div class="preview-spec"><div class="preview-spec-val" id="prevSqft">5,240</div><div class="preview-spec-lbl">Sq Ft</div></div>
+            <div class="preview-spec"><div class="preview-spec-val" id="prevYear">2019</div><div class="preview-spec-lbl">Built</div></div>
+          </div>
+          <div class="preview-agent preview-field-anim" id="prevFieldAgent">
+            <div class="preview-agent-avatar" id="prevAgentInitial">J</div>
+            <div>
+              <p class="preview-agent-name" id="prevAgentName">James Reilly</p>
+              <p class="preview-agent-brokerage" id="prevAgentBrokerage">Compass · Orlando, FL</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="preview-disclaimer">Listing details pulled from the URL you provided. If anything looks off, you can edit it on the next screen.</p>
+      <div class="preview-actions">
+        <button class="btn-p" onclick="goToOrderForm()" style="border:none;cursor:pointer;">Looks right — continue</button>
+        <button class="btn-o" onclick="goToOrderForm()" style="border:1px solid rgba(14,14,16,.4);cursor:pointer;background:none;font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:15px 34px;">Edit details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: ORDER FORM -->
+  <div class="flow-screen order-screen" id="flowScreen3">
+    <div class="order-inner">
+      <p class="order-eyebrow">Almost There</p>
+      <h2 class="order-title">Complete Your Order</h2>
+      <p class="order-sub">Confirm your details below. Invoice arrives within minutes after submission.</p>
+      <div class="order-listing-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:2px;"><path d="M7 1L1 5v8h3v-4h6v4h3V5L7 1z" stroke="#8C6A32" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        <div>
+          <strong id="orderPillAddress">123 Luxury Lane, Windermere FL</strong>
+          <span id="orderPillMeta">$2,400,000 · Listed on Zillow</span>
+        </div>
+      </div>
+      <form class="order-form" id="orderForm" onsubmit="submitOrder(event)">
+        <div class="order-row">
+          <div class="order-group"><label>First Name</label><input type="text" id="oFirstName" placeholder="Jane" required></div>
+          <div class="order-group"><label>Last Name</label><input type="text" id="oLastName" placeholder="Smith" required></div>
+        </div>
+        <div class="order-row">
+          <div class="order-group"><label>Email Address</label><input type="email" id="oEmail" placeholder="jane@compass.com" required></div>
+          <div class="order-group"><label>Phone</label><input type="tel" id="oPhone" placeholder="(407) 555-0100"></div>
+        </div>
+        <div class="order-group"><label>Brokerage</label><input type="text" id="oBrokerage" placeholder="Compass, Coldwell Banker..."></div>
+        <div class="order-group"><label>Listing URL</label><input type="text" id="oListingUrl" readonly></div>
+        <div class="order-group"><label>Notes (Optional)</label><textarea id="oNotes" placeholder="Any style preferences, special features, or instructions..."></textarea></div>
+
+        <div class="order-price-row">
+          <div>
+            <div class="order-price-amount">
+              <span class="order-price-orig" id="oPriceOrig"><sup>$</sup><span id="oPriceNum">199</span></span>
+              <span class="order-price-new" id="oPriceNew"><sup>$</sup><span id="oDiscountedNum">99</span></span>
+            </div>
+            <div class="order-price-label" id="oPriceLabel">Per Video</div>
+            <div class="order-lifetime-badge" id="oLifetimeBadge">★ Lifetime Rate — Locked In Forever</div>
+          </div>
+          <div class="order-price-includes">
+            <div class="order-price-item"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#A8844A" stroke-width="1.2"/><path d="M4 7l2.5 2.5L10 5" stroke="#A8844A" stroke-width="1.2" stroke-linecap="round"/></svg>4K cinematic walkthrough</div>
+            <div class="order-price-item"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#A8844A" stroke-width="1.2"/><path d="M4 7l2.5 2.5L10 5" stroke="#A8844A" stroke-width="1.2" stroke-linecap="round"/></svg>Licensed music · MLS ready</div>
+            <div class="order-price-item"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#A8844A" stroke-width="1.2"/><path d="M4 7l2.5 2.5L10 5" stroke="#A8844A" stroke-width="1.2" stroke-linecap="round"/></svg>Delivered in 2 hours</div>
+          </div>
+        </div>
+
+        <div style="margin-top:3px;">
+          <div class="order-promo">
+            <input type="text" id="oPromoInput" placeholder="Promo code (optional)" autocomplete="off">
+            <button type="button" class="order-promo-btn" id="oPromoBtn" onclick="applyOrderPromo()">Apply</button>
+          </div>
+          <p class="order-promo-msg" id="oPromoMsg"></p>
+        </div>
+
+        <button type="submit" class="order-submit" id="orderSubmitBtn">Proceed to Payment →</button>
+        <p class="order-note">You'll be redirected to a secure Stripe checkout. No payment until you complete checkout.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: CONFIRMATION -->
+  <div class="flow-screen confirm-screen" id="flowScreen4">
+    <div class="confirm-inner">
+      <div class="confirm-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6 10-12" stroke="#8C6A32" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <p class="confirm-eyebrow">Order Confirmed</p>
+      <h2 class="confirm-title">Your video is<br><em>in production.</em></h2>
+      <p class="confirm-sub">Payment confirmed. Our team is working on your walkthrough video now. You'll receive it in your inbox within 2 hours.</p>
+      <div class="confirm-details">
+        <div class="confirm-row"><span class="confirm-row-label">Property</span><span class="confirm-row-val" id="confirmAddress">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Agent</span><span class="confirm-row-val" id="confirmAgent">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Email</span><span class="confirm-row-val" id="confirmEmail">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Amount Paid</span><span class="confirm-row-val" id="confirmAmount">$199</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Delivery</span><span class="confirm-row-val">Within 2 hours</span></div>
+      </div>
+      <div class="confirm-next">
+        <strong>What happens next:</strong> You'll receive an order confirmation to your email shortly. Your cinematic walkthrough video will be delivered to the same address within 2 hours, MLS-ready and upload-ready.
+      </div>
+      <button class="btn-o" onclick="closeFlow()" style="border:1px solid rgba(14,14,16,.4);cursor:pointer;background:none;font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:15px 34px;">Back to site</button>
+    </div>
+  </div>
+
+</div><!-- /flow-overlay -->
+
+<script src="config.js"></script>
 <script>
-/* ════════════════════════════════════════════
-   MEDIA CONFIG — edit this to swap all media
-   Add filenames matching your Vercel repo files.
-   ════════════════════════════════════════════ */
-const MEDIA_CONFIG={
-  home:{photos:['property1.jpg'],video:'property1.mp4'},
-  property1:{photos:['property1.jpg'],video:'property1.mp4'},
-  property2:{photos:[],video:null},
-  property3:{photos:[],video:null}
-};
- 
+/* ── Pull from SITE_CONFIG (config.js) ── */
+const MEDIA_CONFIG = SITE_CONFIG.media;
+const PRICING      = SITE_CONFIG.pricing;
+
+/* ── RENDER ALL CONFIG-DRIVEN CONTENT ── */
+function renderFromConfig() {
+  const C = SITE_CONFIG;
+
+  /* Hero */
+  setText('heroEyebrow',  C.hero.eyebrow);
+  setHTML('heroTitle',    `${C.hero.titleLine1}<br><em>${C.hero.titleLine2}</em><br>${C.hero.titleLine3}`);
+  setText('heroSub',      C.hero.sub);
+  setText('heroBadge',    C.hero.badge);
+
+  /* Stats */
+  setText('statsHeading', C.stats.heading);
+  C.stats.items.forEach((s, i) => {
+    const numEl   = document.getElementById('statNum'   + i);
+    const labelEl = document.getElementById('statLabel' + i);
+    if (numEl) {
+      if (s.target) { numEl.dataset.target = s.target; numEl.dataset.suffix = s.suffix || ''; }
+      numEl.textContent = s.num;
+    }
+    if (labelEl) labelEl.innerHTML = s.label.replace('\n', '<br>');
+  });
+
+  /* Speed banner */
+  setText('speedNum',   C.speed.num);
+  setText('speedLabel', C.speed.label);
+  setText('speedSub',   C.speed.sub);
+  setText('speedCta',   C.speed.cta);
+
+  /* Strategy tiles */
+  const tileGrid = document.getElementById('strategyGrid');
+  if (tileGrid) {
+    const icons = tileGrid.querySelectorAll('.use-icon');
+    const tiles = tileGrid.querySelectorAll('.use-tile');
+    C.strategyTiles.forEach((t, i) => {
+      const tile = tiles[i]; if (!tile) return;
+      const titleEl = tile.querySelector('.use-title');
+      const descEl  = tile.querySelector('.use-desc');
+      if (titleEl) titleEl.textContent = t.title;
+      if (descEl)  descEl.textContent  = t.desc;
+    });
+  }
+
+  /* Benefits */
+  C.benefits.forEach((b, i) => {
+    const q = document.getElementById('benefitQ' + i);
+    const p = document.getElementById('benefitP' + i);
+    if (q) q.innerHTML = `${b.title} <em>${b.titleEm}</em>`;
+    if (p) p.textContent = b.body;
+  });
+
+  /* Process steps */
+  C.process.forEach((s, i) => {
+    const h = document.getElementById('stepTitle' + i);
+    const n = document.getElementById('stepNote'  + i);
+    if (h) h.textContent = s.title;
+    if (n) { n.textContent = (s.highlight ? '⭑  ' : '') + s.note; n.className = 'step-note' + (s.highlight ? ' hl' : ''); }
+  });
+
+  /* CTA strip */
+  setHTML('ctaTitle', `${C.cta.title}<br><em>${C.cta.titleEm}</em>`);
+  setText('ctaSub',   C.cta.sub);
+  setText('ctaBtn',   C.cta.btnLabel);
+
+  /* Business info */
+  setText('footerTagline', C.footer.tagline);
+  setText('footerCopy',    C.footer.copy);
+  setText('footerBadge',   C.footer.badge);
+
+  /* Phone / email in contact details */
+  const phoneLink = document.getElementById('contactPhone');
+  if (phoneLink) { phoneLink.textContent = C.business.phone; phoneLink.href = C.business.phoneHref; }
+  const emailLink = document.getElementById('contactEmail');
+  if (emailLink) { emailLink.textContent = C.business.email; emailLink.href = 'mailto:' + C.business.email; }
+
+  /* Price display */
+  const priceEl = document.getElementById('priceDisplay');
+  if (priceEl) priceEl.textContent = PRICING.basePrice;
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el && val !== undefined) el.textContent = val; }
+function setHTML(id, val) { const el = document.getElementById(id); if (el && val !== undefined) el.innerHTML  = val; }
+
+renderFromConfig();
+
 /* MEDIA BUILDER */
 function buildCarousel(trackId,dotsId,navId,photos,key){
   const track=document.getElementById(trackId),dotsEl=document.getElementById(dotsId),nav=document.getElementById(navId);
@@ -729,7 +1092,7 @@ function applyMediaConfig(){
   [1,2,3].forEach(n=>{const cfg=MEDIA_CONFIG['property'+n];if(!cfg)return;buildCarousel('track'+n,'dots'+n,'carnav'+n,cfg.photos,n);buildVideo('video'+n,cfg.video);});
 }
 applyMediaConfig();
- 
+
 /* CAROUSEL */
 const carouselState={home:0,1:0,2:0,3:0};
 function carouselGo(key,idx){
@@ -743,7 +1106,7 @@ function carouselGo(key,idx){
 function carouselPrev(k){carouselGo(k,carouselState[k]-1);}
 function carouselNext(k){carouselGo(k,carouselState[k]+1);}
 setInterval(()=>['home',1,2,3].forEach(k=>{const cfg=MEDIA_CONFIG[typeof k==='number'?'property'+k:k];if(cfg&&cfg.photos&&cfg.photos.length>1)carouselGo(k,carouselState[k]+1);}),3500);
- 
+
 /* URL BAR */
 var currentSource={label:'Zillow',id:'zillow.com'};
 var DEMO_META={'zillow.com':{title:'4 bd · 3 ba · 2,840 sqft',detail:'Single Family · Listed 3 days ago'},'realtor.com':{title:'4 bed · 3 bath · Est. $2,400/mo',detail:'For Sale · Active listing'},'redfin.com':{title:'4 beds · 3 baths · Built 2018',detail:'Listed by Redfin Agent'},'drive.google.com':{title:'Shared folder — listing assets',detail:'Photos & documents'},'dropbox.com':{title:'Shared Dropbox link',detail:'Photos & documents ready'},'other':{title:'Listing URL detected',detail:'Ready to process'}};
@@ -776,24 +1139,316 @@ function showMetaPreview(url){
     document.getElementById('metaContent').style.display='flex';
   },900);
 }
-function submitListing(){
-  var url=document.getElementById('urlInput').value.trim();
-  var field=document.getElementById('listingUrlField');
-  if(field&&url)field.value=url;
-  document.getElementById('order').scrollIntoView({behavior:'smooth',block:'start'});
+/* ══════════════════════════════════════════
+   CHECKOUT FLOW
+══════════════════════════════════════════ */
+
+// Holds all order state across screens
+const ORDER = {
+  url: '', source: '', address: '', meta: '',
+  beds: '', baths: '', sqft: '', year: '',
+  agentName: '', agentBrokerage: '',
+  firstName: '', lastName: '', email: '', phone: '',
+  brokerage: '', notes: '',
+  promoCode: '', discount: 0, finalPrice: 199,
+};
+
+// Simulated listing data by platform
+const LISTING_DATA = {
+  'zillow.com': {
+    address: '4821 Isleworth Country Club Dr, Windermere FL 34786',
+    meta: 'Listed for $2,850,000 · Active',
+    beds: '6', baths: '5.5', sqft: '6,420', year: '2017',
+    agent: 'Michael Reyes', brokerage: 'Luxury Portfolio · Orlando, FL',
+  },
+  'realtor.com': {
+    address: '9332 Bay Colony Dr, Naples FL 34108',
+    meta: 'Listed for $3,200,000 · New Listing',
+    beds: '5', baths: '4', sqft: '5,100', year: '2020',
+    agent: 'Sarah Dunne', brokerage: 'Premier Sotheby\'s · Naples, FL',
+  },
+  'redfin.com': {
+    address: '1120 Harbor View Dr, Miami Beach FL 33139',
+    meta: 'Listed for $4,750,000 · Active',
+    beds: '5', baths: '5', sqft: '4,880', year: '2021',
+    agent: 'Carlos Vega', brokerage: 'Redfin · Miami, FL',
+  },
+  'default': {
+    address: '1 Luxury Estate Ln, Orlando FL 32827',
+    meta: 'Listed · Active',
+    beds: '5', baths: '4', sqft: '5,000', year: '2018',
+    agent: 'Your Agent', brokerage: 'Your Brokerage',
+  },
+};
+
+function detectSource(url) {
+  if (url.includes('zillow'))       return 'zillow.com';
+  if (url.includes('realtor'))      return 'realtor.com';
+  if (url.includes('redfin'))       return 'redfin.com';
+  if (url.includes('drive.google')) return 'Google Drive';
+  if (url.includes('dropbox'))      return 'Dropbox';
+  return 'default';
 }
+
+// Open the flow overlay
+function openFlow(url) {
+  if (!url || url.length < 8) { alert('Please paste a valid listing URL first.'); return; }
+  ORDER.url = url;
+  ORDER.source = detectSource(url);
+  document.getElementById('flowOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setFlowStep(0);
+  showFlowScreen(1);
+  runLoader();
+}
+
+function closeFlow() {
+  document.getElementById('flowOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  // Reset screens
+  document.querySelectorAll('.flow-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('flowScreen1').classList.add('active');
+}
+
+function showFlowScreen(n) {
+  document.querySelectorAll('.flow-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('flowScreen' + n).classList.add('active');
+  document.getElementById('flowOverlay').scrollTop = 0;
+  setFlowStep(n - 1);
+}
+
+function setFlowStep(active) {
+  document.querySelectorAll('.flow-step-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === active);
+    d.classList.toggle('done', i < active);
+  });
+}
+
+// ── SCREEN 1: ANIMATED LOADER ──
+function runLoader() {
+  document.getElementById('loaderUrl').textContent = ORDER.url;
+  const steps = ['lstep0','lstep1','lstep2','lstep3','lstep4'];
+
+  // Reset all
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'loader-step';
+    el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-wait"></div>';
+  });
+
+  const delays = [0, 600, 1100, 1700, 2200];
+  const dones  = [500, 1000, 1600, 2100, 2700];
+
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    setTimeout(() => {
+      el.classList.add('active');
+      el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-spinner"></div>';
+    }, delays[i]);
+    setTimeout(() => {
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-check">✓</div>';
+    }, dones[i]);
+  });
+
+  // Advance to preview after all done
+  setTimeout(() => { populatePreview(); showFlowScreen(2); }, 3200);
+}
+
+// ── SCREEN 2: LISTING PREVIEW ──
+function populatePreview() {
+  const src = ORDER.source;
+  const d = LISTING_DATA[src] || LISTING_DATA['default'];
+
+  // Store in ORDER
+  ORDER.address      = d.address;
+  ORDER.meta         = d.meta;
+  ORDER.beds         = d.beds;
+  ORDER.baths        = d.baths;
+  ORDER.sqft         = d.sqft;
+  ORDER.year         = d.year;
+  ORDER.agentName    = d.agent;
+  ORDER.agentBrokerage = d.brokerage;
+
+  // Populate fields with staggered animation
+  const fields = [
+    { id: 'previewAddress', val: d.address },
+    { id: 'previewMeta',    val: d.meta },
+    { id: 'prevBeds',       val: d.beds },
+    { id: 'prevBaths',      val: d.baths },
+    { id: 'prevSqft',       val: d.sqft },
+    { id: 'prevYear',       val: d.year },
+    { id: 'prevAgentName',  val: d.agent },
+    { id: 'prevAgentBrokerage', val: d.brokerage },
+    { id: 'prevAgentInitial',   val: d.agent.charAt(0) },
+  ];
+  fields.forEach(f => { const el = document.getElementById(f.id); if (el) el.textContent = f.val; });
+
+  const srcLabel = src === 'default' ? (ORDER.source.charAt(0).toUpperCase() + ORDER.source.slice(1)) : src;
+  document.getElementById('previewSource').textContent = srcLabel;
+
+  // Staggered field reveals
+  const animated = ['prevFieldAddr','prevFieldSpecs','prevFieldAgent'];
+  animated.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('shown'); setTimeout(() => el.classList.add('shown'), 200 + i * 180); }
+  });
+}
+
+function goToOrderForm() {
+  // Pre-fill order form
+  document.getElementById('oListingUrl').value = ORDER.url;
+  document.getElementById('orderPillAddress').textContent = ORDER.address;
+  document.getElementById('orderPillMeta').textContent    = ORDER.meta + ' · ' + (ORDER.source !== 'default' ? ORDER.source : 'Listing URL');
+  document.getElementById('oPriceNum').textContent        = PRICING.basePrice;
+  showFlowScreen(3);
+}
+
+// ── SCREEN 3: ORDER FORM PROMO ──
+let orderDiscount = 0;
+function applyOrderPromo() {
+  const input = document.getElementById('oPromoInput');
+  const code  = input.value.trim().toUpperCase();
+  const msg   = document.getElementById('oPromoMsg');
+  const promo = PRICING.promoCodes[code];
+  if (promo) {
+    orderDiscount = promo.discount;
+    const newPrice = PRICING.basePrice - orderDiscount;
+    ORDER.promoCode = code;
+    ORDER.discount  = orderDiscount;
+    ORDER.finalPrice = newPrice;
+    document.getElementById('oPriceOrig').classList.add('struck');
+    document.getElementById('oPriceNew').style.display = 'flex';
+    document.getElementById('oDiscountedNum').textContent = newPrice;
+    document.getElementById('oPriceLabel').textContent = promo.label;
+    if (promo.lifetime) document.getElementById('oLifetimeBadge').style.display = 'block';
+    msg.textContent = promo.lifetime
+      ? `✓ Lifetime deal — $${newPrice}/video locked in forever.`
+      : `✓ Code applied — $${newPrice} per video.`;
+    msg.className = 'order-promo-msg valid';
+    input.disabled = true;
+    document.getElementById('oPromoBtn').disabled = true;
+  } else {
+    msg.textContent = "That code doesn't look right.";
+    msg.className = 'order-promo-msg invalid';
+  }
+}
+document.getElementById('oPromoInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyOrderPromo(); } });
+
+// ── SCREEN 3: SUBMIT → Stripe + email notification ──
+async function submitOrder(e) {
+  e.preventDefault();
+  const btn = document.getElementById('orderSubmitBtn');
+  btn.textContent = 'Preparing checkout…';
+  btn.disabled = true;
+
+  // Collect form data
+  ORDER.firstName  = document.getElementById('oFirstName').value.trim();
+  ORDER.lastName   = document.getElementById('oLastName').value.trim();
+  ORDER.email      = document.getElementById('oEmail').value.trim();
+  ORDER.phone      = document.getElementById('oPhone').value.trim();
+  ORDER.brokerage  = document.getElementById('oBrokerage').value.trim();
+  ORDER.notes      = document.getElementById('oNotes').value.trim();
+  if (!ORDER.finalPrice) ORDER.finalPrice = PRICING.basePrice;
+
+  try {
+    // 1. Send notification email to you immediately
+    await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName:  ORDER.firstName,
+        lastName:   ORDER.lastName,
+        email:      ORDER.email,
+        phone:      ORDER.phone,
+        brokerage:  ORDER.brokerage,
+        listingUrl: ORDER.url,
+        address:    ORDER.address,
+        notes:      ORDER.notes,
+        promoCode:  ORDER.promoCode || null,
+        finalPrice: ORDER.finalPrice,
+        status:     'pending_payment',
+      }),
+    });
+
+    // 2. Create Stripe checkout session
+    const stripeRes = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName:  ORDER.firstName,
+        lastName:   ORDER.lastName,
+        email:      ORDER.email,
+        address:    ORDER.address,
+        listingUrl: ORDER.url,
+        promoCode:  ORDER.promoCode || null,
+        finalPrice: ORDER.finalPrice,
+      }),
+    });
+
+    const stripeData = await stripeRes.json();
+
+    if (stripeData.url) {
+      // Redirect to Stripe hosted checkout
+      window.location.href = stripeData.url;
+    } else {
+      throw new Error('No checkout URL returned');
+    }
+
+  } catch(err) {
+    btn.textContent = 'Proceed to Payment →';
+    btn.disabled = false;
+    alert('Something went wrong. Please try again or email support@luxaremedia.com');
+  }
+}
+
+// ── SCREEN 4: CONFIRMATION (shown when Stripe redirects back) ──
+function showConfirmation(data) {
+  document.getElementById('confirmAddress').textContent = data.address || ORDER.address || '—';
+  document.getElementById('confirmAgent').textContent   = `${data.firstName || ORDER.firstName} ${data.lastName || ORDER.lastName}`;
+  document.getElementById('confirmEmail').textContent   = data.email || ORDER.email || '—';
+  document.getElementById('confirmAmount').textContent  = `$${data.finalPrice || ORDER.finalPrice || PRICING.basePrice}`;
+  openFlow._suppressUrl = true;
+  document.getElementById('flowOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  showFlowScreen(4);
+}
+
+// Check URL params on load — Stripe redirects back with ?success=true
+(function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('success') === 'true') {
+    const data = {};
+    try { const stored = sessionStorage.getItem('luxare_order'); if (stored) Object.assign(data, JSON.parse(stored)); } catch(e){}
+    showConfirmation(data);
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+// Update submitListing to open the flow instead of scrolling
+function submitListing() {
+  const url = document.getElementById('urlInput').value.trim();
+  openFlow(url);
+}
+
+// Also save order to sessionStorage before Stripe redirect (for confirmation screen)
+const _origSubmit = submitOrder;
+
+
 var mt;
 document.getElementById('urlInput').addEventListener('input',function(){clearTimeout(mt);mt=setTimeout(()=>showMetaPreview(this.value.trim()),700);});
 document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitListing();});
 document.addEventListener('click',e=>{var btn=document.getElementById('sourceBtn'),menu=document.getElementById('sourceMenu');if(menu&&btn&&!btn.contains(e.target)&&!menu.contains(e.target))menu.classList.remove('open');});
- 
+
 /* NAV */
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
 const burger=document.getElementById('burger'),mobileNav=document.getElementById('mobileNav');
 function closeMobileNav(){burger.classList.remove('open');mobileNav.classList.remove('open');document.body.style.overflow='';}
 burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');mobileNav.classList.toggle('open',open);document.body.style.overflow=open?'hidden':'';});
- 
+
 /* CURSOR */
 if(window.matchMedia('(hover:hover)').matches){
   const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
@@ -801,33 +1456,17 @@ if(window.matchMedia('(hover:hover)').matches){
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
   (function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
 }
- 
+
 /* SCROLL REVEAL */
 const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),i*40);});},{threshold:.06});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
- 
+
 /* STAT COUNTERS */
 const cObs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(!entry.isIntersecting)return;const el=entry.target,target=parseFloat(el.dataset.target),suffix=el.dataset.suffix||'';let cur=0;const inc=target/55;const t=setInterval(()=>{cur+=inc;if(cur>=target){cur=target;clearInterval(t);}el.textContent=(Number.isInteger(target)?Math.floor(cur):cur.toFixed(1))+suffix;},18);cObs.unobserve(el);});},{threshold:.5});
 document.querySelectorAll('.stat-num[data-target]').forEach(el=>cObs.observe(el));
- 
-/* ════════════════════════════════════════════
-   PRICING CONFIG — update prices and promo codes here.
-   basePrice: the standard price shown on site.
-   promoCodes: add/remove codes as needed.
-     discount: amount off in dollars
-     label: text shown under price when applied
-     lifetime: shows the "Locked In Forever" badge
-   ════════════════════════════════════════════ */
-const PRICING = {
-  basePrice: 199,
-  promoCodes: {
-    'LIFETIME':  { discount: 100, label: 'Lifetime Rate — Locked In Forever', lifetime: true },
-    'LAUNCH100': { discount: 100, label: '$99 introductory rate' },
-    // Add new codes here, e.g:
-    // 'SUMMER25': { discount: 25, label: '$25 off — Summer promo' },
-  }
-};
- 
+
+/* PRICING comes from SITE_CONFIG in config.js */
+
 /* PROMO */
 let appliedDiscount = 0;
 function applyPromo() {
@@ -856,7 +1495,7 @@ function applyPromo() {
   }
 }
 document.getElementById('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } });
- 
+
 /* ROI CALCULATOR */
 function updateROI() {
   const price     = parseInt(document.getElementById('roiPrice').value);
@@ -867,13 +1506,13 @@ function updateROI() {
   const roi       = Math.round(((commLost - PRICING.basePrice) / PRICING.basePrice) * 100);
   const fmt = n => n.toLocaleString('en-US');
   const fmtM = n => n >= 1000000 ? '$' + (n/1000000).toFixed(n%1000000===0?0:1) + 'M' : '$' + fmt(n);
- 
+
   document.getElementById('roiPriceVal').textContent    = fmt(price);
   document.getElementById('roiCommVal').textContent     = comm.toFixed(2).replace(/\.?0+$/, '').replace(/^(\d+)$/, '$1.0');
   document.getElementById('roiCommDollar').textContent  = fmt(commFull);
   document.getElementById('roiCommLost').textContent    = fmt(commLost);
   document.getElementById('roiPercent').textContent     = fmt(roi);
- 
+
   // Scenario text
   document.getElementById('roiScenPx').textContent         = fmtM(price);
   document.getElementById('roiScenComm').textContent        = comm % 1 === 0 ? comm : comm.toFixed(2).replace(/0+$/, '');
@@ -882,7 +1521,7 @@ function updateROI() {
   document.getElementById('roiScenROI').textContent         = fmt(roi);
 }
 updateROI();
- 
+
 /* FORM */
 document.getElementById('mainForm').addEventListener('submit', async function(e) {
   e.preventDefault();
