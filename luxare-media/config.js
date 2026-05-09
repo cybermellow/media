@@ -59,13 +59,13 @@ const SITE_CONFIG = {
       video:    'property1.mp4',
     },
     property2: {
-      name:     'Coming Soon',          // e.g. 'Bay Colony Estate'
-      location: 'Add your city, state',  // e.g. 'Naples, FL'
-      price:    '',                       // e.g. '$2,850,000'
-      type:     'Coming Soon',
-      desc:     'Update this config to add photos and video for this showcase.',
+      name:     'Formosa Estate',          // e.g. 'Bay Colony Estate'
+      location: 'Kissimee, FL',  // e.g. 'Naples, FL'
+      price:    '$2,900,000',                       // e.g. '$2,850,000'
+      type:     'Luxury Estate',
+      desc:     'Static listing photos turned into a cinematic property experience.',
       photos:   [],   // e.g. ['property2a.jpg', 'property2b.jpg', ...up to 8]
-      video:    null  // e.g. 'property2.mp4'
+      video:    'property2.mp4'  // e.g. 'property2.mp4'
     },
     property3: {
       name:     'Coming Soon',
