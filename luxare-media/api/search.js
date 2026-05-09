@@ -6,7 +6,7 @@
    and fill in ZILLOW_API_KEY in Vercel env vars.
    ============================================================ */
 
-const DATA_SOURCE = 'google'; // 'google' | 'zillow' | 'simulated'
+const DATA_SOURCE = 'zillow'; // 'google' | 'zillow' | 'simulated'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
