@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LUXARÉ — Luxury Real Estate Walkthrough Videos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI3RmvuHMnFnIwq8PQV0VG3AhQrCLpxcU&libraries=places&callback=initGoogleMaps" async defer></script>
+<!-- Google Places dropdown styled dynamically in JS after Maps loads -->
+<style>
+:root{
+  --gold:#8C6A32;--gold-light:#B8924E;--gold-dark:#5C440F;--gold-pale:#D4B98A;
+  --bg:#DEDFE0;--bg-alt:#D5D6D8;--bg-card:#EBEBEC;
+  --ink:#0A0A0C;--ink-mid:#303038;--ink-soft:#5A5A64;
+  --white:#F5F5F6;--dark:#0E0E10;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Montserrat',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;overflow-x:hidden;}
+@media(hover:hover){
+  body{cursor:none;}
+  .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s;transform:translate(-50%,-50%);}
+  .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(140,106,50,.45);border-radius:50%;pointer-events:none;z-index:9998;transition:width .3s,height .3s;transform:translate(-50%,-50%);}
+}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 52px;background:rgba(222,223,224,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:border-bottom .3s;}
+nav.scrolled{border-bottom:1px solid rgba(140,106,50,.2);}
+.nav-logo{font-family:var(--serif);font-size:22px;letter-spacing:.15em;color:var(--ink);text-decoration:none;flex-shrink:0;}
+.logo-bold{font-weight:600;font-style:normal;}.logo-italic{font-weight:300;font-style:italic;}
+.nav-links-row{display:flex;gap:0;list-style:none;align-items:center;}
+.nav-links-row a{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:none;transition:color .3s;padding:6px 16px;}
+.nav-links-row a:hover{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:20px;}
+.nav-cta{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:#2C2C2E;border:1px solid #2C2C2E;padding:10px 22px;text-decoration:none;transition:all .3s;white-space:nowrap;}
+.nav-cta:hover{background:#1a1a1c;color:var(--gold-pale);}
+.nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none;z-index:201;}
+.nav-burger span{display:block;width:22px;height:1.5px;background:var(--ink);transition:all .3s;}
+.nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+.nav-burger.open span:nth-child(2){opacity:0;}
+.nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
+.nav-mobile{display:none;position:fixed;inset:0;background:var(--bg);z-index:190;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+.nav-mobile.open{display:flex;}
+.nav-mobile a{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);text-decoration:none;}
+.nav-mobile a:hover{color:var(--gold);}
+.nav-mobile .mob-cta{background:var(--ink);color:var(--white);padding:14px 40px;font-weight:500;letter-spacing:.16em;}
+/* BUTTONS */
+.btn-p{background:#2C2C2E;color:var(--gold-pale);padding:15px 34px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;font-family:var(--sans);font-weight:500;transition:all .3s;display:inline-block;}
+.btn-p:hover{background:#1a1a1c;color:var(--gold-light);}
+.btn-o{border:1px solid rgba(14,14,16,.4);color:var(--ink);padding:15px 34px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;font-family:var(--sans);transition:all .3s;display:inline-block;}
+.btn-o:hover{border-color:var(--ink);background:rgba(14,14,16,.06);}
+.btn-g{background:var(--gold);color:var(--white);padding:17px 48px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;font-family:var(--sans);font-weight:600;transition:background .3s;display:inline-block;}
+.btn-g:hover{background:var(--gold-dark);}
+.btn-dk{background:var(--dark);color:var(--white);padding:17px 48px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;font-family:var(--sans);font-weight:500;transition:background .3s;display:inline-block;border:1px solid rgba(255,255,255,.08);}
+.btn-dk:hover{background:#2a2a2e;}
+/* UTILS */
+.sl{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);}
+.st{font-family:var(--serif);font-size:clamp(28px,4vw,54px);font-weight:300;line-height:1.1;color:var(--ink);}
+.st em{font-style:italic;color:var(--gold);}
+.ss{font-size:12px;color:var(--ink-mid);line-height:2;font-weight:400;}
+.gsm{margin-bottom:12px;}.gmd{margin-bottom:20px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .72s ease,transform .72s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.tc{text-align:center;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+@keyframes gridDrift{0%{transform:translate(0,0)}100%{transform:translate(70px,70px)}}
+@keyframes scrollPulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes playPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,.3)}50%{box-shadow:0 0 0 18px rgba(201,169,110,0)}}
+@keyframes scanline{from{top:0;opacity:0}10%{opacity:1}90%{opacity:1}to{top:100%;opacity:0}}
+@keyframes spinBounce{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg);}
+.grid-lines{position:absolute;inset:0;opacity:.07;background-image:linear-gradient(rgba(140,106,50,1) 1px,transparent 1px),linear-gradient(90deg,rgba(140,106,50,1) 1px,transparent 1px);background-size:70px 70px;animation:gridDrift 22s linear infinite;}
+.hero-content{position:relative;text-align:center;z-index:2;max-width:820px;padding:32px 24px 48px;width:100%;}
+.hero-eyebrow{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;animation:fadeUp 1s ease .3s both;text-shadow:0 0 24px rgba(140,106,50,.5),0 1px 3px rgba(10,10,12,.15);}
+.hero-title{font-family:var(--serif);font-size:clamp(42px,8vw,88px);font-weight:300;line-height:1;margin-bottom:18px;animation:fadeUp 1s ease .5s both;color:var(--ink);}
+.hero-title em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:13px;color:var(--ink-mid);max-width:500px;margin:0 auto 20px;line-height:2;animation:fadeUp 1s ease .65s both;font-weight:400;}
+.hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
+.hero-scroll span{font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft);opacity:.4;}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,rgba(140,106,50,.5),transparent);animation:scrollPulse 2s ease-in-out infinite;}
+/* BADGE */
+.turnaround-badge{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(180,140,80,.45);background:linear-gradient(135deg,#5C3D1A 0%,#7A5228 40%,#6B4520 70%,#4E2E10 100%);padding:11px 22px;margin-bottom:28px;animation:fadeUp 1s ease .75s both;flex-wrap:wrap;justify-content:center;box-shadow:0 2px 16px rgba(90,52,16,.35),inset 0 1px 0 rgba(255,210,140,.15);}
+.badge-dot{width:7px;height:7px;background:#E8C07A;border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 6px rgba(232,192,122,.6);}
+.turnaround-badge span{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#F0D49A;text-shadow:0 1px 3px rgba(30,10,0,.4);}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 1s ease .9s both;}
+/* URL BAR */
+.url-bar-wrap{position:relative;width:100%;max-width:640px;margin:0 auto 22px;text-align:left;animation:fadeUp 1s ease .72s both;}.url-bar{display:flex;align-items:center;background:var(--white);border:1.5px solid rgba(140,106,50,.3);box-shadow:0 4px 24px rgba(14,14,16,.1);position:relative;}
+.url-bar:focus-within{border-color:rgba(140,106,50,.65);}
+.url-input-type{display:flex;align-items:center;padding:0 12px;height:50px;flex-shrink:0;pointer-events:none;}
+.url-input-icon{display:flex;align-items:center;transition:opacity .25s;}
+.url-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--ink);padding:0 12px;height:50px;min-width:0;}
+.url-input::placeholder{color:rgba(14,14,16,.32);}
+.url-submit{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 18px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .3s;flex-shrink:0;}
+.url-submit:hover{background:#1a1612;color:var(--gold);}
+.example2-location{font-size:13px;color:var(--ink-soft);margin-top:4px;letter-spacing:.04em;}
+/* Stat source badge */
+.stat-source{display:inline-block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dark);border:1px solid rgba(140,106,50,.25);padding:2px 6px;margin-top:5px;font-weight:500;}
+/* Combined strategy + benefits (Option 3) */
+.combined-split{display:grid;grid-template-columns:1fr 1fr;gap:3px;align-items:start;}
+.combined-col-label{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;display:block;}
+.combined-left{background:var(--bg-card);border:1px solid rgba(140,106,50,.12);padding:28px 28px 24px;}
+.combined-right{background:var(--bg-alt);border:1px solid rgba(140,106,50,.12);padding:28px 28px 24px;}
+.combined-tiles{display:flex;flex-direction:column;gap:2px;}
+.combined-tile{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border:1px solid rgba(140,106,50,.08);transition:border-color .2s;}
+.combined-tile:hover{border-color:rgba(140,106,50,.28);}
+.combined-tile svg{flex-shrink:0;opacity:.8;}
+.combined-tile span{font-size:12px;color:var(--ink);font-weight:300;}
+.combined-benefits{display:flex;flex-direction:column;gap:3px;}
+.combined-benefit{display:flex;align-items:flex-start;gap:14px;padding:16px 14px;background:var(--bg-card);border:1px solid rgba(140,106,50,.1);transition:border-color .3s,box-shadow .3s;position:relative;}
+.combined-benefit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(0);transition:transform .3s;transform-origin:top;}
+.combined-benefit:hover{border-color:rgba(140,106,50,.28);box-shadow:0 2px 10px rgba(26,26,28,.05);}
+.combined-benefit:hover::before{transform:scaleY(1);}
+.combined-benefit-icon{width:34px;height:34px;border:1px solid rgba(140,106,50,.2);background:rgba(140,106,50,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.combined-benefit-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:5px;}
+.combined-benefit-sub{font-size:11px;color:var(--ink-soft);line-height:1.7;}
+@media(max-width:960px){
+  .combined-split{grid-template-columns:1fr;}
+  .combined-left{border-bottom:none;}
+}
+@media(max-width:580px){
+  .combined-left,.combined-right{padding:20px 16px;}
+  .combined-tile span{font-size:11px;}
+  .combined-benefit-title{font-size:11px;}
+  .combined-benefit-sub{font-size:10px;}
+}
+.custom-ac{position:absolute;top:calc(100% + 1px);left:0;right:0;background:#F5F5F6;border:1px solid rgba(140,106,50,.25);border-top:none;box-shadow:0 8px 24px rgba(14,14,16,.12);z-index:9999;display:none;max-height:280px;overflow-y:auto;}
+.custom-ac-item{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid rgba(140,106,50,.08);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;color:#0A0A0C;transition:background .15s;}
+.custom-ac-item:last-child{border-bottom:none;}
+.custom-ac-item:hover,.custom-ac-item.active{background:rgba(140,106,50,.07);}
+.custom-ac-item span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* STATS */
+.stats-section{border-top:1px solid rgba(140,106,50,.16);border-bottom:1px solid rgba(140,106,50,.16);padding:52px;background:var(--bg-card);}
+.stats-heading{text-align:center;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:32px;}
+.stats-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.stat-card{padding:32px 18px;border:1px solid rgba(140,106,50,.1);text-align:center;background:var(--bg-card);transition:border-color .3s;}
+.stat-card:hover{border-color:rgba(140,106,50,.32);}
+.stat-num{font-family:var(--serif);font-size:46px;font-weight:300;color:var(--gold);line-height:1;margin-bottom:8px;}
+.stat-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid);line-height:1.8;font-weight:400;}
+/* TRANSFORM */
+.transform-section{padding:96px 0;background:var(--bg);}
+.ba-container{max-width:1100px;margin:0 auto;padding:0 52px;}
+.prop-transform{display:grid;grid-template-columns:1fr 44px 1fr;height:400px;align-items:stretch;}
+.prop-carousel{position:relative;overflow:hidden;background:#1a1a1c;}
+.prop-carousel-track{display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+.prop-carousel-track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;}
+.prop-carousel-nav{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:10;padding:10px 14px;padding-top:28px;background:linear-gradient(to top,rgba(10,10,10,.88),transparent);}
+.car-btn{background:rgba(10,10,10,.7);border:1px solid rgba(255,255,255,.15);color:rgba(245,241,234,.8);font-size:13px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;padding:0;font-family:var(--sans);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.car-btn:hover,.car-btn:active{background:rgba(140,106,50,.9);color:var(--white);}
+.car-dots{display:flex;gap:7px;align-items:center;}
+.car-dot{width:6px;height:6px;border-radius:50%;background:rgba(245,241,234,.35);cursor:pointer;transition:all .25s;border:none;padding:0;}
+.car-dot.active{background:var(--gold-light);transform:scale(1.35);}
+.prop-video-wrap{position:relative;overflow:hidden;background:#0e0c09;}
+.prop-video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.prop-transform-arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-alt);gap:6px;}
+.prop-transform-label{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(to bottom,rgba(10,10,10,.65),transparent);display:flex;align-items:center;gap:8px;z-index:5;}
+.transform-tag{font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:3px 9px;font-family:var(--sans);font-weight:500;flex-shrink:0;}
+.before-label .transform-tag{background:rgba(20,20,22,.85);color:rgba(245,241,234,.5);border:1px solid rgba(255,255,255,.1);}
+.after-tag{background:rgba(140,106,50,.9);color:#fff;}
+.label-text{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,241,234,.5);}
+.mls-badge{display:flex;align-items:flex-start;gap:12px;border:1px solid rgba(140,106,50,.22);padding:14px 20px;background:rgba(140,106,50,.05);}
+.mls-badge-text{font-size:11px;color:var(--ink-mid);line-height:1.7;}
+.mls-badge-text strong{color:var(--gold);font-weight:500;}
+/* SPEED */
+.speed-banner{text-align:center;padding:72px 52px;background:var(--dark);}
+.speed-num{font-family:var(--serif);font-size:clamp(68px,14vw,148px);font-weight:300;color:var(--gold-light);line-height:1;}
+.speed-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(245,241,234,.6);margin-top:8px;margin-bottom:16px;}
+.speed-sub{font-size:13px;color:rgba(245,241,234,.78);max-width:460px;margin:0 auto 32px;line-height:2;font-weight:400;}
+/* OFFER — strategy tiles */
+.offer-teaser{padding:96px 52px;background:var(--bg);}
+.use-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.use-tile{padding:28px 24px;border:1px solid rgba(140,106,50,.1);background:var(--bg-card);transition:border-color .3s,box-shadow .3s;}
+.use-tile:hover{border-color:rgba(140,106,50,.3);box-shadow:0 4px 16px rgba(26,26,28,.06);}
+.use-icon{width:38px;height:38px;border:1px solid rgba(140,106,50,.2);background:rgba(140,106,50,.05);display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0;}
+.use-title{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink);margin-bottom:7px;text-transform:uppercase;font-size:10px;letter-spacing:.12em;}
+.use-desc{font-size:11px;line-height:1.8;color:var(--ink-mid);font-weight:400;}
+.offer-visual{position:relative;height:440px;border:1px solid rgba(140,106,50,.18);overflow:hidden;background:linear-gradient(160deg,#0d0b08,#1a1610);box-shadow:0 10px 40px rgba(26,26,28,.14);}
+.offer-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 40% 40%,rgba(201,169,110,.17) 0%,transparent 60%);}
+.film-strip{position:absolute;top:0;bottom:0;left:0;width:26px;background:repeating-linear-gradient(to bottom,#0a0a0a 0px,#0a0a0a 10px,#1a1a1a 10px,#1a1a1a 14px,#0a0a0a 14px,#0a0a0a 24px);border-right:1px solid rgba(201,169,110,.12);}
+.film-strip-r{left:auto;right:0;border-right:none;border-left:1px solid rgba(201,169,110,.12);}
+.offer-screen{position:absolute;inset:16px 42px;background:linear-gradient(160deg,#0f0e0b,#1c1914 50%,#0d0c09);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.offer-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,rgba(201,169,110,.15) 0%,transparent 55%);}
+.play-btn{width:62px;height:62px;border:2px solid rgba(201,169,110,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;animation:playPulse 3s ease-in-out infinite;}
+.play-btn::after{content:'';width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:19px solid rgba(201,169,110,.9);margin-left:5px;}
+.offer-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(201,169,110,.4),transparent);animation:scanline 4s linear infinite;}
+.corner{position:absolute;width:13px;height:13px;border-color:rgba(168,132,74,.38);border-style:solid;}
+.corner.tl{top:5px;left:5px;border-width:2px 0 0 2px;}.corner.tr{top:5px;right:5px;border-width:2px 2px 0 0;}
+.corner.bl{bottom:5px;left:5px;border-width:0 0 2px 2px;}.corner.br{bottom:5px;right:5px;border-width:0 2px 2px 0;}
+.offer-text-tag{display:inline-block;font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(140,106,50,.36);background:rgba(140,106,50,.07);padding:5px 12px;margin-bottom:14px;}
+.offer-h{font-family:var(--serif);font-size:clamp(28px,3.4vw,46px);font-weight:300;line-height:1.1;margin-bottom:16px;color:var(--ink);}
+.offer-h em{font-style:italic;color:var(--gold);}
+.offer-p{font-size:13px;line-height:2.1;color:var(--ink);font-weight:400;margin-bottom:22px;}
+.spec-list{display:flex;flex-direction:column;gap:2px;margin-bottom:28px;}
+.spec-row{display:flex;align-items:flex-start;gap:12px;padding:11px 15px;border:1px solid rgba(140,106,50,.11);background:var(--bg-card);}
+.spec-dot{width:5px;height:5px;background:var(--gold);border-radius:50%;flex-shrink:0;margin-top:5px;}
+.spec-row span{font-size:12px;color:var(--ink);line-height:1.7;}
+.spec-row strong{font-weight:500;}
+/* BENEFITS */
+.benefits-section{padding:96px 52px;background:var(--bg-alt);}
+.benefits-inner{max-width:1100px;margin:0 auto;}
+.benefits-grid{margin-top:56px;display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.benefit-card{padding:38px 36px;border:1px solid rgba(140,106,50,.1);background:var(--bg-card);position:relative;overflow:hidden;transition:all .35s;}
+.benefit-card:hover{border-color:rgba(140,106,50,.3);box-shadow:0 4px 20px rgba(26,26,28,.06);}
+.benefit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--gold),transparent);transform:scaleX(0);transition:transform .35s;transform-origin:left;}
+.benefit-card:hover::before{transform:scaleX(1);}
+.benefit-icon{width:40px;height:40px;border:1px solid rgba(140,106,50,.25);background:rgba(140,106,50,.06);display:flex;align-items:center;justify-content:center;margin-bottom:18px;flex-shrink:0;}
+.benefit-q{font-family:var(--serif);font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.35;margin-bottom:12px;color:var(--ink);}
+.benefit-q em{font-style:italic;color:var(--gold);}
+.benefit-p{font-size:12px;line-height:2;color:var(--ink);}
+
+/* ROI CALCULATOR */
+.roi-section{padding:96px 52px;background:var(--bg);}
+.roi-inner{max-width:900px;margin:0 auto;}
+.roi-card{background:var(--bg-card);border:1px solid rgba(140,106,50,.18);padding:48px 52px;margin-top:52px;}
+.roi-inputs{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:36px;}
+.roi-group label{display:block;font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px;}
+.roi-group input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:rgba(140,106,50,.2);border-radius:2px;outline:none;margin-bottom:8px;}
+.roi-group input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(140,106,50,.35);}
+.roi-group input[type=range]::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border-radius:50%;cursor:pointer;border:none;}
+.roi-val{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--ink);}
+.roi-val sup{font-family:var(--sans);font-size:13px;font-weight:400;vertical-align:super;color:var(--gold);}
+.roi-val span{font-size:13px;color:var(--ink-soft);}
+.roi-divider{height:1px;background:rgba(140,106,50,.12);margin-bottom:32px;}
+.roi-results{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:24px;}
+.roi-result{padding:22px 18px;text-align:center;border:1px solid rgba(140,106,50,.1);background:var(--bg);}
+.roi-result.highlight{background:var(--dark);border-color:rgba(140,106,50,.4);}
+.roi-result-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;line-height:1.6;}
+.roi-result.highlight .roi-result-label{color:rgba(245,241,234,.5);}
+.roi-result-val{font-family:var(--serif);font-size:clamp(22px,3vw,36px);font-weight:300;color:var(--gold);}
+.roi-result.highlight .roi-result-val{color:var(--gold-light);}
+.roi-result-val sup{font-family:var(--sans);font-size:13px;vertical-align:super;font-weight:400;}
+.roi-note{font-size:10px;color:var(--ink-soft);text-align:center;line-height:1.8;border-top:1px solid rgba(140,106,50,.1);padding-top:20px;}
+.roi-note strong{color:var(--gold-dark);font-weight:500;}
+/* PROCESS */
+.process-section{padding:96px 52px;background:var(--bg);}
+.process-inner{max-width:700px;margin:0 auto;}
+.process-steps{display:flex;flex-direction:column;gap:3px;margin-top:60px;}
+.p-step{display:grid;grid-template-columns:64px 1fr;gap:26px;align-items:start;padding:30px 34px;border:1px solid rgba(140,106,50,.1);background:var(--bg-card);position:relative;transition:border-color .3s,box-shadow .3s;}
+.p-step:hover{border-color:rgba(140,106,50,.3);box-shadow:0 3px 14px rgba(26,26,28,.05);}
+.p-step::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transition:transform .35s;transform-origin:top;}
+.p-step:hover::before{transform:scaleY(1);}
+.p-step-num{font-family:var(--serif);font-size:42px;font-weight:300;color:rgba(140,106,50,.22);line-height:1;padding-top:4px;}
+.p-step-body h3{font-family:var(--serif);font-size:20px;font-weight:400;margin-bottom:10px;color:var(--ink);}
+.p-step-body p{font-size:12px;line-height:2;color:var(--ink);margin-bottom:10px;}
+.step-note{display:inline-flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(140,106,50,.28);padding:6px 12px;}
+.step-note.hl{border-color:rgba(140,106,50,.5);}
+/* EXAMPLES */
+.videos-section{padding:80px 0 100px;background:var(--bg-alt);}
+.videos-inner{max-width:1100px;margin:0 auto;padding:0 52px;}
+.property-showcase{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-bottom:80px;padding-bottom:80px;border-bottom:1px solid rgba(140,106,50,.1);}
+.property-showcase:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.property-showcase.reverse{direction:rtl;}
+.property-showcase.reverse>*{direction:ltr;}
+.prop-type{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.prop-name{font-family:var(--serif);font-size:clamp(24px,3vw,38px);font-weight:300;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.prop-location{font-size:11px;color:var(--ink-mid);margin-bottom:14px;}
+.prop-desc{font-size:13px;line-height:2;color:var(--ink);font-weight:400;margin-bottom:18px;}
+.prop-results{display:flex;gap:3px;margin-bottom:18px;}
+.prop-result{flex:1;padding:14px 8px;border:1px solid rgba(140,106,50,.12);background:var(--bg-card);text-align:center;}
+.prop-result-num{font-family:var(--serif);font-size:24px;font-weight:300;color:var(--gold);}
+.prop-result-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mid);margin-top:4px;font-weight:400;}
+/* CTA STRIP */
+.cta-strip{background:var(--dark);padding:72px 52px;text-align:center;}
+.cta-strip-title{font-family:var(--serif);font-size:clamp(28px,3.5vw,46px);font-weight:300;color:var(--white);margin-bottom:14px;line-height:1.2;}
+.cta-strip-title em{color:var(--gold-light);font-style:italic;}
+.cta-strip-sub{font-size:12px;color:rgba(245,241,234,.78);margin-bottom:32px;line-height:2;max-width:440px;margin-left:auto;margin-right:auto;font-weight:400;}
+.cta-strip-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+/* ORDER FORM */
+.contact-section{padding:96px 52px;background:var(--bg);}
+.contact-layout{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:start;}
+.contact-info-title{font-family:var(--serif);font-size:clamp(26px,3vw,40px);font-weight:300;color:var(--ink);margin-bottom:24px;line-height:1.2;}
+.contact-info-title em{font-style:italic;color:var(--gold);}
+.gold-line{width:48px;height:1px;background:var(--gold);margin-bottom:16px;}
+.contact-detail{display:flex;flex-direction:column;gap:3px;margin-bottom:28px;}
+.contact-detail-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border:1px solid rgba(140,106,50,.12);background:var(--bg-card);}
+.contact-detail-icon{width:16px;height:16px;flex-shrink:0;opacity:.6;}
+.contact-detail-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:2px;}
+.contact-detail-value{font-size:13px;color:var(--ink);font-weight:500;}
+.contact-reassure{border:1px solid rgba(140,106,50,.2);padding:20px 22px;background:rgba(140,106,50,.04);}
+.contact-reassure p{font-size:12px;line-height:1.9;color:var(--ink);font-weight:400;}
+.contact-reassure strong{color:var(--gold);font-weight:500;}
+.contact-form-wrap{background:var(--bg-card);border:1px solid rgba(140,106,50,.14);padding:44px 40px;}
+.contact-form-title{font-family:var(--serif);font-size:24px;font-weight:300;color:var(--ink);margin-bottom:6px;}
+.contact-form-sub{font-size:11px;color:var(--ink-mid);margin-bottom:28px;line-height:1.8;}
+.cf{display:flex;flex-direction:column;gap:3px;}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.cf-group{display:flex;flex-direction:column;}
+.cf-group label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:7px;padding:0 2px;}
+.cf-group input,.cf-group textarea{background:var(--bg);border:1px solid rgba(140,106,50,.18);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:300;padding:13px 15px;outline:none;transition:border-color .3s;width:100%;}
+.cf-group input:focus,.cf-group textarea:focus{border-color:rgba(140,106,50,.48);}
+.cf-group input::placeholder,.cf-group textarea::placeholder{color:rgba(26,26,28,.3);}
+.cf-group textarea{resize:none;height:94px;}
+.cf-submit{width:100%;background:var(--gold);color:var(--white);border:none;cursor:pointer;padding:17px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;transition:background .3s;margin-top:12px;}
+.cf-submit:hover{background:var(--gold-dark);}
+.cf-note{font-size:10px;color:var(--ink-mid);margin-top:12px;line-height:1.8;text-align:center;}
+/* PRICE */
+.price-card{border:1px solid rgba(140,106,50,.3);background:var(--bg);padding:28px 32px;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.price-amount{font-family:var(--serif);font-size:52px;font-weight:300;color:var(--ink);line-height:1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.price-amount sup{font-family:var(--sans);font-size:18px;font-weight:400;vertical-align:super;margin-right:1px;color:var(--gold);}
+.price-orig{transition:all .4s;}
+.price-orig.struck{text-decoration:line-through;opacity:.4;font-size:36px;}
+.price-new{display:none;color:var(--gold);}
+.price-new sup{color:var(--gold);}
+.price-label{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-top:4px;}
+.price-lifetime-badge{display:none;font-size:8px;letter-spacing:.18em;text-transform:uppercase;background:var(--gold);color:var(--white);padding:4px 10px;margin-top:8px;width:fit-content;}
+.price-includes{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px;}
+.price-item{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-mid);}
+.price-check{width:14px;height:14px;flex-shrink:0;}
+.price-divider{width:1px;height:56px;background:rgba(140,106,50,.2);flex-shrink:0;}
+.promo-row{display:flex;flex-direction:column;margin-top:3px;}
+.promo-row label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;padding:0 2px;}
+.promo-input-wrap{display:flex;gap:2px;}
+.promo-input{background:var(--bg-card);border:1px solid rgba(140,106,50,.14);color:var(--ink);font-family:var(--sans);font-size:12px;padding:12px 14px;outline:none;transition:border-color .3s;flex:1;}
+.promo-input:focus{border-color:rgba(140,106,50,.42);}
+.promo-input::placeholder{color:rgba(26,26,28,.25);}
+.promo-apply{background:transparent;border:1px solid rgba(140,106,50,.3);color:var(--gold);font-family:var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:0 16px;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.promo-apply:hover{background:var(--gold);color:var(--white);}
+.promo-apply:disabled{opacity:.35;cursor:default;}
+.promo-msg{font-size:10px;margin-top:6px;color:var(--ink-soft);min-height:16px;}
+.promo-msg.valid{color:#3a7a3a;font-weight:500;}
+.promo-msg.invalid{color:#a03a3a;}
+/* FOOTER */
+footer{padding:56px 52px 34px;background:var(--dark);}
+.footer-inner{max-width:1100px;margin:0 auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:36px;}
+.footer-logo{font-family:var(--serif);font-size:22px;letter-spacing:.15em;color:var(--gold-light);margin-bottom:12px;}
+.footer-logo .logo-bold{color:var(--gold-light);font-weight:600;font-style:normal;}
+.footer-logo .logo-italic{color:var(--gold-light);font-weight:300;font-style:italic;}
+.footer-tagline{font-size:12px;line-height:2;color:rgba(245,241,234,.65);max-width:260px;margin-bottom:20px;}
+.footer-col h5{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-light);margin-bottom:16px;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:10px;}
+.footer-col ul li a{font-size:12px;color:rgba(245,241,234,.6);text-decoration:none;transition:color .3s;}
+.footer-col ul li a:hover{color:var(--gold-light);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:26px;border-top:1px solid rgba(245,241,234,.07);flex-wrap:wrap;gap:8px;}
+.footer-bottom p{font-size:10px;color:rgba(245,241,234,.45);letter-spacing:.05em;}
+
+/* ══════════════════════════════════════════
+   CHECKOUT FLOW OVERLAY
+══════════════════════════════════════════ */
+.flow-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;overflow-y:auto;}
+.flow-overlay.active{display:flex;}
+.flow-screen{display:none;flex:1;flex-direction:column;}
+.flow-screen.active{display:flex;}
+.flow-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid rgba(140,106,50,.15);background:rgba(222,223,224,.97);backdrop-filter:blur(12px);flex-shrink:0;}
+.flow-logo{font-family:var(--serif);font-size:20px;letter-spacing:.15em;color:var(--ink);}
+.flow-back{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);transition:color .2s;font-family:var(--sans);}
+.flow-back:hover{color:var(--ink);}
+.flow-steps{display:flex;align-items:center;gap:6px;}
+.flow-step-dot{width:8px;height:8px;border-radius:50%;background:rgba(140,106,50,.2);transition:background .3s;}
+.flow-step-dot.active{background:var(--gold);}
+.flow-step-dot.done{background:var(--gold-dark);}
+/* SCREEN 1: LOADER */
+.loader-screen{align-items:center;justify-content:center;min-height:calc(100vh - 65px);background:var(--dark);}
+.loader-inner{text-align:center;max-width:460px;padding:40px 24px;width:100%;}
+.loader-ring{width:72px;height:72px;border:2px solid rgba(140,106,50,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 32px;}
+.loader-confirmed{display:none;flex-direction:column;align-items:center;gap:16px;margin-bottom:32px;}
+.loader-confirmed.show{display:flex;}
+.loader-confirmed-ring{width:72px;height:72px;border:2px solid rgba(98,180,98,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.loader-confirmed-check{color:#6bbf6b;font-size:32px;animation:confirmPop .4s cubic-bezier(.34,1.56,.64,1) both;}
+.loader-confirmed-text{font-family:var(--serif);font-size:22px;font-weight:300;color:var(--white);}
+.loader-confirmed-text em{font-style:italic;color:#6bbf6b;}
+.loader-confirmed-addr{font-size:11px;color:rgba(245,241,234,.5);letter-spacing:.06em;max-width:360px;text-align:center;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-title{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--white);margin-bottom:8px;}
+.loader-title em{font-style:italic;color:var(--gold-light);}
+.loader-url{font-size:10px;color:rgba(245,241,234,.3);letter-spacing:.04em;margin-bottom:32px;word-break:break-all;max-width:360px;margin-left:auto;margin-right:auto;}
+.loader-steps{display:flex;flex-direction:column;gap:10px;text-align:left;border:1px solid rgba(140,106,50,.15);padding:20px 24px;}
+.loader-step{display:flex;align-items:center;gap:12px;font-size:11px;color:rgba(245,241,234,.25);letter-spacing:.04em;transition:color .4s;}
+.loader-step.done{color:rgba(245,241,234,.7);}
+.loader-step.active{color:var(--gold-light);}
+.loader-step-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.ls-spinner{width:12px;height:12px;border:1.5px solid rgba(140,106,50,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+.ls-check{color:#6bbf6b;font-size:14px;line-height:1;}
+.ls-wait{width:6px;height:6px;border-radius:50%;background:rgba(245,241,234,.12);margin:auto;}
+/* SCREEN 2: PREVIEW */
+.preview-screen{align-items:center;justify-content:flex-start;padding:48px 24px;min-height:calc(100vh - 65px);background:var(--bg);}
+.preview-inner{width:100%;max-width:700px;margin:0 auto;}
+.preview-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.preview-title{font-family:var(--serif);font-size:clamp(22px,3.5vw,36px);font-weight:300;color:var(--ink);margin-bottom:28px;line-height:1.2;}
+.preview-card{border:1px solid rgba(140,106,50,.2);background:var(--bg-card);overflow:hidden;margin-bottom:20px;}
+.preview-photo{height:240px;background:#1a1a1c;position:relative;overflow:hidden;}
+.preview-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.preview-source-badge{position:absolute;top:12px;left:12px;background:rgba(10,10,12,.8);border:1px solid rgba(140,106,50,.3);padding:4px 10px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-light);}
+.preview-details{padding:24px 26px;}
+.preview-address{font-family:var(--serif);font-size:clamp(17px,2.5vw,24px);font-weight:300;color:var(--ink);margin-bottom:6px;}
+.preview-meta{font-size:11px;color:var(--ink-soft);margin-bottom:16px;}
+.preview-specs{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:18px;}
+.preview-spec{padding:12px 8px;text-align:center;border:1px solid rgba(140,106,50,.1);background:var(--bg);}
+.preview-spec-val{font-family:var(--serif);font-size:20px;font-weight:300;color:var(--gold);}
+.preview-spec-lbl{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;}
+.preview-agent{display:flex;align-items:center;gap:12px;border-top:1px solid rgba(140,106,50,.1);padding-top:14px;}
+.preview-agent-avatar{width:36px;height:36px;border-radius:50%;background:rgba(140,106,50,.1);border:1px solid rgba(140,106,50,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--serif);font-size:14px;color:var(--gold);}
+.preview-agent-name{font-size:12px;font-weight:500;color:var(--ink);}
+.preview-agent-brokerage{font-size:10px;color:var(--ink-soft);}
+.preview-field-anim{opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease;}
+.preview-field-anim.shown{opacity:1;transform:none;}
+.preview-disclaimer{font-size:10px;color:var(--ink-soft);line-height:1.7;margin-bottom:20px;padding:10px 14px;border-left:2px solid rgba(140,106,50,.25);}
+.preview-actions{display:flex;gap:12px;flex-wrap:wrap;}
+/* SCREEN 3: ORDER */
+.order-screen{align-items:center;justify-content:flex-start;padding:48px 24px 80px;min-height:calc(100vh - 65px);background:var(--bg);}
+.order-inner{width:100%;max-width:640px;margin:0 auto;padding-bottom:40px;}
+.order-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.order-title{font-family:var(--serif);font-size:clamp(22px,3vw,34px);font-weight:300;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.order-sub{font-size:12px;color:var(--ink-soft);margin-bottom:28px;line-height:1.8;}
+.order-listing-pill{display:flex;align-items:flex-start;gap:10px;border:1px solid rgba(140,106,50,.2);background:rgba(140,106,50,.04);padding:10px 14px;margin-bottom:24px;font-size:11px;color:var(--ink-mid);line-height:1.6;}
+.order-listing-pill strong{color:var(--ink);font-weight:500;display:block;margin-bottom:2px;}
+.order-form{display:flex;flex-direction:column;gap:3px;}
+.order-row{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.order-group{display:flex;flex-direction:column;}
+.order-group label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:6px;padding:0 2px;}
+.order-group input,.order-group textarea{background:var(--bg-card);border:1px solid rgba(140,106,50,.18);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:300;padding:12px 14px;outline:none;transition:border-color .3s;width:100%;}
+.order-group input:focus,.order-group textarea:focus{border-color:rgba(140,106,50,.5);}
+.order-group input::placeholder,.order-group textarea::placeholder{color:rgba(26,26,28,.28);}
+.order-group textarea{resize:none;height:76px;}
+.order-price-row{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(140,106,50,.22);background:var(--bg);padding:18px 20px;margin-top:8px;flex-wrap:wrap;gap:12px;}
+.order-price-amount{font-family:var(--serif);font-size:38px;font-weight:300;color:var(--ink);line-height:1;display:flex;align-items:baseline;gap:8px;}
+.order-price-amount sup{font-family:var(--sans);font-size:14px;color:var(--gold);vertical-align:super;}
+.order-price-orig{transition:all .4s;}
+.order-price-orig.struck{text-decoration:line-through;opacity:.38;font-size:26px;}
+.order-price-new{display:none;color:var(--gold);}
+.order-price-new sup{color:var(--gold);}
+.order-price-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-top:4px;}
+.order-lifetime-badge{display:none;font-size:8px;letter-spacing:.15em;text-transform:uppercase;background:var(--gold);color:var(--white);padding:3px 8px;margin-top:5px;width:fit-content;}
+.order-price-includes{display:flex;flex-direction:column;gap:5px;}
+.order-price-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-mid);}
+.order-promo{display:flex;gap:2px;margin-top:3px;}
+.order-promo input{flex:1;background:var(--bg-card);border:1px solid rgba(140,106,50,.18);color:var(--ink);font-family:var(--sans);font-size:12px;padding:11px 13px;outline:none;transition:border-color .3s;}
+.order-promo input:focus{border-color:rgba(140,106,50,.42);}
+.order-promo input::placeholder{color:rgba(26,26,28,.25);}
+.order-promo-btn{background:transparent;border:1px solid rgba(140,106,50,.3);color:var(--gold);font-family:var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:0 15px;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.order-promo-btn:hover{background:var(--gold);color:var(--white);}
+.order-promo-btn:disabled{opacity:.35;cursor:default;}
+.order-promo-msg{font-size:10px;margin-top:5px;min-height:14px;}
+.order-promo-msg.valid{color:#3a7a3a;font-weight:500;}
+.order-promo-msg.invalid{color:#a03a3a;}
+.order-submit{width:100%;background:var(--gold);color:var(--white);border:none;cursor:pointer;padding:17px;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;transition:background .3s;margin-top:10px;}
+.order-submit:hover{background:var(--gold-dark);}
+/* Order form sections */
+.order-section-label{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:10px;display:block;}
+.order-includes-section{background:var(--bg-card);border:1px solid rgba(140,106,50,.15);padding:20px 22px;margin-bottom:3px;}
+.order-includes-grid{display:flex;flex-direction:column;gap:10px;}
+.order-include-item{display:flex;align-items:flex-start;gap:12px;font-size:11px;}
+.order-include-item svg{flex-shrink:0;margin-top:1px;}
+.order-include-item strong{display:block;color:var(--ink);font-weight:500;font-size:11px;margin-bottom:2px;}
+.order-include-item span{color:var(--ink-soft);font-size:10px;line-height:1.6;}
+.order-addons-section{background:var(--bg-card);border:1px solid rgba(140,106,50,.15);border-top:none;padding:20px 22px;margin-bottom:3px;}
+.order-addon{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid rgba(140,106,50,.12);background:var(--bg);margin-bottom:3px;cursor:pointer;transition:border-color .2s,background .2s;}
+.order-addon:last-child{margin-bottom:0;}
+.order-addon:hover{border-color:rgba(140,106,50,.3);background:rgba(140,106,50,.03);}
+.order-addon.selected{border-color:rgba(140,106,50,.5);background:rgba(140,106,50,.06);}
+.order-addon-check{width:18px;height:18px;border:1.5px solid rgba(140,106,50,.35);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:var(--bg);}
+.order-addon.selected .order-addon-check{background:var(--gold);border-color:var(--gold);}
+.order-addon-check svg{display:none;}
+.order-addon.selected .order-addon-check svg{display:block;}
+.order-addon-body{flex:1;}
+.order-addon-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.order-addon-desc{font-size:10px;color:var(--ink-soft);line-height:1.6;}
+.order-addon-price{font-family:var(--serif);font-size:18px;font-weight:300;color:var(--gold);flex-shrink:0;margin-top:1px;}
+/* Order total */
+.order-total-row{border:1px solid rgba(140,106,50,.25);background:var(--bg);padding:18px 20px;margin-top:3px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.order-total-left{}
+.order-total-breakdown{display:flex;flex-direction:column;gap:6px;min-width:200px;}
+.order-total-line{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--ink-soft);}
+.order-total-line.total{border-top:1px solid rgba(140,106,50,.15);padding-top:8px;margin-top:2px;font-weight:500;color:var(--ink);font-size:12px;}
+.order-price-row{display:none;}/* hide old price row */
+/* Stripe Payment Element */
+.stripe-section{margin-top:12px;border:1px solid rgba(140,106,50,.22);background:var(--bg);padding:20px;}
+.stripe-section-label{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.stripe-section-label svg{opacity:.5;}
+#stripePaymentElement{min-height:44px;}
+.stripe-card-error{font-size:10px;color:#c0392b;margin-top:6px;min-height:14px;}
+.stripe-secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:9px;color:var(--ink-soft);letter-spacing:.1em;margin-top:8px;}
+.stripe-secure svg{opacity:.4;}
+/* SCREEN 4: CONFIRMATION */
+.confirm-screen{align-items:center;justify-content:center;min-height:calc(100vh - 65px);padding:48px 24px;background:var(--bg);}
+.confirm-inner{max-width:500px;width:100%;text-align:center;}
+.confirm-icon{width:72px;height:72px;border:1.5px solid rgba(140,106,50,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;animation:confirmPop .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes confirmPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.confirm-eyebrow{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.confirm-title{font-family:var(--serif);font-size:clamp(24px,4vw,40px);font-weight:300;color:var(--ink);margin-bottom:12px;line-height:1.2;}
+.confirm-title em{font-style:italic;color:var(--gold);}
+.confirm-sub{font-size:13px;color:var(--ink-mid);line-height:2;margin-bottom:28px;font-weight:400;}
+.confirm-details{border:1px solid rgba(140,106,50,.18);background:var(--bg-card);padding:22px 26px;margin-bottom:24px;text-align:left;}
+.confirm-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(140,106,50,.08);}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-row-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);flex-shrink:0;}
+.confirm-row-val{font-size:12px;color:var(--ink);text-align:right;word-break:break-word;}
+.confirm-next{font-size:11px;color:var(--ink-mid);line-height:2;margin-bottom:24px;border:1px solid rgba(140,106,50,.12);padding:14px 18px;background:rgba(140,106,50,.03);}
+.confirm-next strong{color:var(--gold-dark);font-weight:500;}
+
+/* URL POPUP MODAL */
+.url-popup-overlay{position:fixed;inset:0;z-index:600;background:rgba(10,10,12,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;}
+.url-popup-overlay.active{display:flex;}
+.url-popup{background:var(--bg);border:1px solid rgba(140,106,50,.3);max-width:560px;width:100%;padding:40px 40px 36px;position:relative;box-shadow:0 20px 60px rgba(10,10,12,.25);animation:popupIn .3s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popupIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.url-popup-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:18px;line-height:1;padding:4px;transition:color .2s;}
+.url-popup-close:hover{color:var(--ink);}
+.url-popup-eyebrow{font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.url-popup-title{font-family:var(--serif);font-size:clamp(22px,3vw,30px);font-weight:300;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.url-popup-title em{font-style:italic;color:var(--gold);}
+.url-popup-sub{font-size:11px;color:var(--ink-soft);margin-bottom:22px;line-height:1.8;}
+.url-popup-bar{display:flex;align-items:center;background:var(--white);border:1.5px solid rgba(140,106,50,.3);box-shadow:0 4px 16px rgba(14,14,16,.08);}
+.url-popup-bar:focus-within{border-color:rgba(140,106,50,.65);}
+.url-popup-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--ink);padding:0 14px;height:50px;min-width:0;}
+.url-popup-input::placeholder{color:rgba(14,14,16,.3);}
+.url-popup-btn{display:flex;align-items:center;gap:7px;background:#2A2420;color:var(--gold-light);border:none;padding:0 20px;height:50px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .3s;flex-shrink:0;}
+.url-popup-btn:hover{background:#1a1612;}
+.url-popup-note{font-size:9px;color:var(--ink-soft);margin-top:10px;text-align:center;letter-spacing:.04em;}
+@media(max-width:580px){.url-popup{padding:28px 20px 24px;}.url-popup-bar{flex-wrap:wrap;}.url-popup-input{height:44px;}.url-popup-btn{height:44px;width:100%;justify-content:center;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:16px 24px;}
+  .nav-links-row,.nav-cta{display:none;}
+  .nav-burger{display:flex;}
+  .stats-section{padding:40px 24px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .transform-section{padding:72px 0;}
+  .ba-container{padding:0 24px;}
+  .offer-teaser{padding:72px 24px;}
+  .use-grid{grid-template-columns:repeat(2,1fr);}
+  .benefits-section{padding:72px 24px;}
+  .benefits-inner{padding:0;}
+  .benefits-grid{grid-template-columns:1fr;}
+  .roi-section{padding:72px 24px;}
+  .roi-inner{padding:0;}
+  .roi-card{padding:32px 24px;}
+  .roi-inputs{grid-template-columns:1fr;}
+  .roi-results{grid-template-columns:1fr;}
+  #roi{padding:64px 20px !important;}
+  .cta-strip{padding:56px 24px;}
+  .process-section{padding:72px 24px;}
+  .process-inner{padding:0;}
+  .p-step{grid-template-columns:48px 1fr;gap:20px;padding:24px 22px;}
+  .videos-section{padding:60px 0 80px;}
+  .videos-inner{padding:0 24px;}
+  .property-showcase{grid-template-columns:1fr;gap:36px;margin-bottom:60px;padding-bottom:60px;}
+  .property-showcase.reverse{direction:ltr;}
+  .prop-transform{grid-template-columns:1fr;grid-template-rows:260px 40px 260px;height:auto;}
+  .prop-transform-arrow{flex-direction:row;height:40px;}
+  .prop-transform-arrow svg{transform:rotate(90deg);}
+  .car-btn{width:38px;height:38px;font-size:15px;}
+  .contact-section{padding:72px 24px;}
+  .contact-layout{grid-template-columns:1fr;gap:40px;}
+  .contact-form-wrap{padding:28px 24px;}
+  footer{padding:44px 24px 26px;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .speed-banner{padding:56px 24px;}
+}
+@media(max-width:580px){
+  .hero-content{padding:24px 16px 40px;}
+  .hero-title{font-size:clamp(36px,10vw,58px);}
+  .hero-actions{flex-direction:column;align-items:center;}
+  .btn-p,.btn-o,.btn-g,.btn-dk{width:100%;max-width:320px;text-align:center;}
+  .url-bar-wrap{max-width:100%;}
+  .url-bar{flex-wrap:wrap;}
+  .url-source-btn{height:44px;font-size:10px;padding:0 10px;}
+  .url-input{height:44px;font-size:12px;}
+  .url-submit{height:44px;width:100%;justify-content:center;font-size:10px;}
+  .turnaround-badge{padding:9px 14px;gap:7px;}
+  .turnaround-badge span{font-size:8px;letter-spacing:.1em;}
+  .stats-section{padding:28px 16px;}
+  .stat-num{font-size:38px;}
+  .ba-container{padding:0 16px;}
+  .offer-teaser{padding:52px 16px;}
+  .use-grid{grid-template-columns:1fr;}
+  .offer-visual{height:240px;}
+  .benefits-section{padding:52px 16px;}
+  .benefit-card{padding:28px 22px;}
+  .cta-strip{padding:48px 16px;}
+  .process-section{padding:48px 16px;}
+  .p-step{grid-template-columns:1fr;gap:4px;padding:20px 18px;}
+  .p-step-num{font-size:28px;}
+  .videos-inner{padding:0 16px;}
+  .prop-transform{grid-template-rows:220px 36px 220px;}
+  .prop-results{flex-wrap:wrap;}
+  .contact-section{padding:52px 16px;}
+  .cf-row{grid-template-columns:1fr;}
+  footer{padding:36px 16px 22px;}
+  .footer-col:last-child{display:none;}
+  .speed-banner{padding:48px 16px;}
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></a>
+  <ul class="nav-links-row">
+    <li><a href="#transform">Our Work</a></li>
+    <li><a href="#offer">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#order">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#pricing" class="nav-cta" onclick="openUrlPopup();return false;">Order Your Video — $199</a>
+    <button class="nav-burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile" id="mobileNav">
+  <a href="#transform" onclick="closeMobileNav()">Our Work</a>
+  <a href="#offer" onclick="closeMobileNav()">Services</a>
+  <a href="#process" onclick="closeMobileNav()">Process</a>
+  <a href="#examples" onclick="closeMobileNav()">Examples</a>
+  <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
+  <a href="#pricing" class="mob-cta" onclick="closeMobileNav();openUrlPopup();return false;">Order Your Video — $199</a>
+</div>
+
+<!-- 1. HERO -->
+<section class="hero" id="hero">
+  <div class="grid-lines"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow" id="heroEyebrow">Luxury Real Estate Walkthrough Videos</p>
+    <h1 class="hero-title" id="heroTitle">Your Listings.<br><em>Cinema Quality.</em><br>Delivered In 2 Hours.</h1>
+    <p class="hero-sub" id="heroSub">Paste your listing link below — we take it from there.</p>
+    <div class="url-bar-wrap">
+      <div class="url-bar" id="urlBar">
+        <div class="url-input-type" id="urlInputIcon">
+          <!-- Icon updates based on input type: address vs URL -->
+          <svg id="iconAddress" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.5-2-4.5-4.5-4.5z" stroke="#8C6A32" stroke-width="1.2"/><circle cx="8" cy="6" r="1.5" stroke="#8C6A32" stroke-width="1.2"/></svg>
+          <svg id="iconUrl" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;"><path d="M6.5 9.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L7.5 3.5" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/><path d="M9.5 6.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5l1-1" stroke="#8C6A32" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <input class="url-input" id="urlInput" type="text" placeholder="Listing address or paste URL..." autocomplete="off" spellcheck="false">
+        <button class="url-submit" onclick="submitListing()">Order Video <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+    <div class="turnaround-badge"><div class="badge-dot"></div><span id="heroBadge">2-Hour Turnaround &nbsp;·&nbsp; MLS Compliant &nbsp;·&nbsp; Ready to Upload</span></div>
+    <div class="hero-actions"><a href="#process" class="btn-o">See How It Works</a></div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- 2. STATS -->
+<section class="stats-section">
+  <p class="stats-heading">Why Your Next Listing Needs Video</p>
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="stat-card reveal">
+      <div class="stat-num" data-target="403" data-suffix="%">403%</div>
+      <div class="stat-label">More Inquiries From<br>Listings With Video<br><span class="stat-source">NAR</span></div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay:.07s">
+      <div class="stat-num" data-target="73" data-suffix="%">73%</div>
+      <div class="stat-label">Of Homeowners Prefer Agents<br>Who Use Video Marketing<br><span class="stat-source">NAR</span></div>
+    </div>
+    <div class="stat-card reveal" style="transition-delay:.14s">
+      <div class="stat-num" data-target="51" data-suffix="%">51%</div>
+      <div class="stat-label">Of Buyers Use YouTube<br>as Their #1 Search Tool<br><span class="stat-source">NAR</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. TRANSFORM -->
+<section class="transform-section" id="transform">
+  <div class="ba-container">
+    <div style="margin-bottom:44px;text-align:center;" class="reveal">
+      <p class="sl gsm">The Transformation</p>
+      <h2 class="st gmd">Listing Photos In.<br><em>Cinematic Video</em> Out.</h2>
+      <p class="ss" style="max-width:520px;margin:0 auto;">We take your existing listing photos and transform them into a cinematic walkthrough — no photographer, no scheduling, no hassle.</p>
+    </div>
+    <div class="prop-transform reveal" style="border:1px solid rgba(140,106,50,.22);box-shadow:0 6px 32px rgba(26,26,28,.1);">
+      <div class="prop-carousel" id="homeCarousel">
+        <div class="prop-carousel-track" id="homeTrack"><img id="homePhoto" src="property1.jpg" alt="Listing photo" style="flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="prop-carousel-nav" id="homeCarNav" style="display:none;"><button class="car-btn" onclick="carouselPrev('home')">&#8592;</button><div class="car-dots" id="homeDots"></div><button class="car-btn" onclick="carouselNext('home')">&#8594;</button></div>
+        <div class="prop-transform-label before-label"><span class="transform-tag">Before</span><span class="label-text">Listing Photos</span></div>
+      </div>
+      <div class="prop-transform-arrow"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M4 16h24M20 8l8 8-8 8" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="prop-video-wrap">
+        <video id="homeVideo" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;"><source src="property1.mp4" type="video/mp4"></video>
+        <div class="prop-transform-label after-label"><span class="transform-tag after-tag">After</span><span class="label-text">Cinematic Walkthrough Video</span></div>
+      </div>
+    </div>
+    <div style="margin-top:28px;" class="reveal">
+      <div class="mls-badge">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:2px;"><circle cx="10" cy="10" r="9" stroke="#A8844A" stroke-width="1.5"/><path d="M5.5 10.5L8.5 13.5L14.5 7.5" stroke="#A8844A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p class="mls-badge-text"><strong>MLS Compliant &amp; Upload-Ready.</strong> Every video meets MLS format requirements — delivered ready to post on Zillow, Realtor.com, and your MLS. No editing, no tech headaches.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. SPEED -->
+<section class="speed-banner">
+  <div class="speed-num reveal" id="speedNum">2 hrs</div>
+  <p class="speed-label" id="speedLabel">Average Delivery Time</p>
+  <p class="speed-sub" id="speedSub">From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.</p>
+  <div class="reveal"><a href="#pricing" class="btn-g" id="speedCta" onclick="openUrlPopup();return false;">Get Your Video — $199</a></div>
+</section>
+
+<!-- 5. COMBINED STRATEGY + BENEFITS (Option 3) -->
+<section class="offer-teaser" id="offer">
+  <div style="max-width:1100px;margin:0 auto;">
+
+    <div class="reveal tc" style="margin-bottom:52px;">
+      <h3 class="offer-h" style="text-align:center;">One Video.<br><em>Maximum Impact.</em></h3>
+      <p class="offer-p" style="text-align:center;max-width:560px;margin:0 auto;">A single Luxaré walkthrough works across every platform your buyers are already on — and delivers measurable results at every stage of the sales cycle.</p>
+    </div>
+
+    <div class="combined-split reveal" style="transition-delay:.1s;">
+
+      <!-- LEFT: Where it works -->
+      <div class="combined-left">
+        <p class="combined-col-label">Where it works</p>
+        <div class="combined-tiles">
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="13" rx="1.5" stroke="#8C6A32" stroke-width="1.3"/><path d="M2 7h16" stroke="#8C6A32" stroke-width="1.3"/><circle cx="10" cy="12" r="2" stroke="#8C6A32" stroke-width="1.3"/></svg>
+            <span>MLS · Zillow · Realtor.com</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="4" stroke="#8C6A32" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14.5" cy="5.5" r="1" fill="#8C6A32"/></svg>
+            <span>Instagram · LinkedIn · Facebook</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 4h14v10H3z" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/><path d="M3 4l7 6 7-6" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            <span>Email campaigns &amp; buyer lists</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 17l4-4 4 4 8-8" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span>Listing presentations</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2L2 7v11h5v-5h6v5h5V7L10 2z" stroke="#8C6A32" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            <span>Your personal landing page</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M10 2c0 0-4 3.5-4 8s4 8 4 8M10 2c0 0 4 3.5 4 8s-4 8-4 8M2 10h16" stroke="#8C6A32" stroke-width="1.3"/></svg>
+            <span>Brokerage website</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="3" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14" cy="5" r="2" stroke="#8C6A32" stroke-width="1.3"/><circle cx="14" cy="15" r="2" stroke="#8C6A32" stroke-width="1.3"/><path d="M10 7.5l2.5-1.5M10 8.5l2.5 5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span>Local partners &amp; referrals</span>
+          </div>
+          <div class="combined-tile">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3" stroke="#8C6A32" stroke-width="1.3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span>International &amp; remote buyers</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: What it does -->
+      <div class="combined-right">
+        <p class="combined-col-label">What it does for you</p>
+        <div class="combined-benefits">
+          <div class="combined-benefit">
+            <div class="combined-benefit-icon">
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none"><polyline points="2,16 8,9 13,13 20,5" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15,5 20,5 20,10" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <p class="combined-benefit-title">Win more listing appointments</p>
+              <p class="combined-benefit-sub">Show luxury sellers what premium looks like before they sign — close before the competition gets a callback.</p>
+            </div>
+          </div>
+          <div class="combined-benefit">
+            <div class="combined-benefit-icon">
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none"><polyline points="2,5 8,12 13,8 20,16" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15,16 20,16 20,11" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="19" x2="20" y2="19" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="combined-benefit-title">20% reduction in days on market</p>
+              <p class="combined-benefit-sub">Buyers arrive pre-sold. Listings with walkthrough video consistently outperform comparable properties in the same zip code.</p>
+            </div>
+          </div>
+          <div class="combined-benefit">
+            <div class="combined-benefit-icon">
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8C6A32" stroke-width="1.4"/><path d="M11 6v1.5M11 14.5V16M8.5 8.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5c0 1.5-2.5 2.5-2.5 4M11 14a.5.5 0 110 1 .5.5 0 010-1" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="combined-benefit-title">Protect price &amp; commission</p>
+              <p class="combined-benefit-sub">Elevated media creates elevated perceived value. Fewer low offers, stronger negotiating position, commissions protected.</p>
+            </div>
+          </div>
+          <div class="combined-benefit">
+            <div class="combined-benefit-icon">
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="5" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><circle cx="4" cy="17" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><circle cx="18" cy="17" r="2.5" stroke="#8C6A32" stroke-width="1.4"/><line x1="11" y1="7.5" x2="4.8" y2="14.5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/><line x1="11" y1="7.5" x2="17.2" y2="14.5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/><line x1="6.5" y1="17" x2="15.5" y2="17" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="combined-benefit-title">4× more referrals &amp; brand growth</p>
+              <p class="combined-benefit-sub">Every listing markets the agent. Cinematic media compounds across social platforms and drives repeat luxury business.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="reveal tc" style="margin-top:48px;transition-delay:.2s;">
+      <a href="#order" class="btn-p" onclick="openUrlPopup();return false;"><span id="ctaBtn">Order Your Video</span></a>
+    </div>
+
+  </div>
+</section>
+
+<!-- 6. SECOND TRANSFORM EXAMPLE -->
+<section class="transform-section" id="examples" style="background:var(--bg-alt);">
+  <div class="ba-container">
+    <div style="margin-bottom:44px;text-align:center;" class="reveal">
+      <p class="sl gsm" id="example2Label">See It for Yourself</p>
+      <h2 class="st gmd" id="example2Title" style="margin-bottom:8px;"></h2>
+      <p class="example2-location" id="example2Location"></p>
+    </div>
+    <div class="prop-transform reveal" style="border:1px solid rgba(140,106,50,.22);box-shadow:0 6px 32px rgba(26,26,28,.1);">
+      <div class="prop-carousel" id="carousel2">
+        <div class="prop-carousel-track" id="track2"></div>
+        <div class="prop-carousel-nav" id="carnav2">
+          <button class="car-btn" onclick="carouselPrev(2)">&#8592;</button>
+          <div class="car-dots" id="dots2"></div>
+          <button class="car-btn" onclick="carouselNext(2)">&#8594;</button>
+        </div>
+        <div class="prop-transform-label before-label"><span class="transform-tag">Before</span><span class="label-text">Listing Photos</span></div>
+      </div>
+      <div class="prop-transform-arrow"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M4 16h24M20 8l8 8-8 8" stroke="#8C6A32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="prop-video-wrap">
+        <video id="video2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+        <div class="prop-transform-label after-label"><span class="transform-tag after-tag">After</span><span class="label-text">Cinematic Walkthrough Video</span></div>
+      </div>
+    </div>
+    <div style="margin-top:28px;" class="reveal">
+      <div class="mls-badge">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:2px;"><circle cx="10" cy="10" r="9" stroke="#A8844A" stroke-width="1.5"/><path d="M5.5 10.5L8.5 13.5L14.5 7.5" stroke="#A8844A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p class="mls-badge-text">Add your photos and video to <strong>config.js</strong> under <strong>property2</strong> to populate this example. Supports up to 4 listing photos in the carousel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- 7. PROCESS -->
+<section class="process-section" id="process">
+  <div class="process-inner">
+    <div class="reveal tc" style="text-align:center;">
+      <p class="sl gsm" style="text-align:center;">Our Process</p>
+      <h2 class="st gmd" style="text-align:center;">Simple. Fast. <em>Done.</em></h2>
+    </div>
+    <div class="process-steps">
+      <div class="p-step reveal">
+        <div class="p-step-num">01</div>
+        <div class="p-step-body"><h3 id="stepTitle0">Submit Your Listing URL</h3><div class="step-note" id="stepNote0">Takes less than 60 seconds</div></div>
+      </div>
+      <div class="p-step reveal" style="transition-delay:.08s;">
+        <div class="p-step-num">02</div>
+        <div class="p-step-body"><h3 id="stepTitle1">Confirm Your Details</h3><div class="step-note" id="stepNote1">Review listing info &amp; order details</div></div>
+      </div>
+      <div class="p-step reveal" style="transition-delay:.16s;">
+        <div class="p-step-num">03</div>
+        <div class="p-step-body"><h3 id="stepTitle2">Place Your Order</h3><div class="step-note" id="stepNote2">Secure checkout — Apple Pay, Google Pay, or card</div></div>
+      </div>
+      <div class="p-step reveal" style="transition-delay:.24s;">
+        <div class="p-step-num">04</div>
+        <div class="p-step-body"><h3 id="stepTitle3">Video in Your Inbox</h3><div class="step-note hl" id="stepNote3">⭑ &nbsp;Under 2 hours — or it's free</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip" id="pricing">
+  <h2 class="cta-strip-title reveal" id="ctaTitle">Ready to Transform<br><em>Your Next Listing?</em></h2>
+  <p class="cta-strip-sub reveal" id="ctaSub">Submit your listing URL, confirm your details, place your order. Video delivered in under 2 hours — or it's free.</p>
+  <div class="cta-strip-actions reveal"><a href="#pricing" class="btn-g" id="ctaBtn" onclick="openUrlPopup();return false;">Order Your Video — $199</a></div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div><p class="footer-tagline" id="footerTagline">Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready, and built to turn listings into experiences buyers remember.</p></div>
+      <div class="footer-col"><h5>Navigate</h5><ul><li><a href="#transform">Our Work</a></li><li><a href="#offer">Services</a></li><li><a href="#process">Process</a></li><li><a href="#examples">Examples</a></li><li><a href="#order" onclick="openUrlPopup();return false;">Order Now</a></li></ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul><li><a href="tel:+14077205625">(407) 720-5625</a></li><li><a href="mailto:support@luxaremedia.com">support@luxaremedia.com</a></li><li><a href="#order" onclick="openUrlPopup();return false;">Order a Video</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p id="footerCopy">© 2025 LUXARÉ Media. All rights reserved.</p><p id="footerBadge">MLS Compliant · 2-Hour Delivery Guaranteed</p></div>
+  </div>
+</footer>
+
+<!-- URL ORDER POPUP -->
+<div class="url-popup-overlay" id="urlPopup" onclick="closeUrlPopup(event)">
+  <div class="url-popup">
+    <button class="url-popup-close" onclick="closeUrlPopup()" aria-label="Close">✕</button>
+    <p class="url-popup-eyebrow">Get Started</p>
+    <h2 class="url-popup-title">Paste Your<br><em>Listing URL</em></h2>
+    <p class="url-popup-sub">We'll pull the listing details and walk you through the rest in under 2 minutes.</p>
+    <div class="url-popup-bar">
+      <input class="url-popup-input" id="popupUrlInput" type="text" placeholder="Listing address or paste URL..." autocomplete="off" spellcheck="false">
+      <button class="url-popup-btn" onclick="submitPopupUrl()">
+        Order Video
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <p class="url-popup-note">Zillow · Realtor.com · Redfin · Google Drive · Dropbox · MLS &amp; more</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHECKOUT FLOW OVERLAY
+══════════════════════════════════════════ -->
+<div class="flow-overlay" id="flowOverlay">
+
+  <!-- Shared nav bar -->
+  <div class="flow-nav">
+    <div class="flow-logo"><span class="logo-bold">LUX</span><span class="logo-italic">ARÉ</span></div>
+    <div class="flow-steps">
+      <div class="flow-step-dot active" id="dot0"></div>
+      <div class="flow-step-dot" id="dot1"></div>
+      <div class="flow-step-dot" id="dot2"></div>
+      <div class="flow-step-dot" id="dot3"></div>
+    </div>
+    <button class="flow-back" onclick="closeFlow()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to site
+    </button>
+  </div>
+
+  <!-- SCREEN 1: LOADER (dark) -->
+  <div class="flow-screen loader-screen active" id="flowScreen1">
+    <div class="loader-inner">
+      <div class="loader-ring" id="loaderRing"></div>
+      <div class="loader-confirmed" id="loaderConfirmed">
+        <div class="loader-confirmed-ring">
+          <span class="loader-confirmed-check">✓</span>
+        </div>
+        <p class="loader-confirmed-text"><em>Address Confirmed</em></p>
+        <p class="loader-confirmed-addr" id="loaderConfirmedAddr"></p>
+      </div>
+      <h2 class="loader-title" id="loaderTitle">Confirming your <em>listing address</em></h2>
+      <p class="loader-url" id="loaderUrl"></p>
+      <div class="loader-steps">
+        <div class="loader-step" id="lstep0">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Connecting to listing platform</span>
+        </div>
+        <div class="loader-step" id="lstep1">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Reading property address &amp; details</span>
+        </div>
+        <div class="loader-step" id="lstep2">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Fetching photos &amp; listing specs</span>
+        </div>
+        <div class="loader-step" id="lstep3">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Identifying listing agent</span>
+        </div>
+        <div class="loader-step" id="lstep4">
+          <div class="loader-step-icon"><div class="ls-wait"></div></div>
+          <span>Preparing your order preview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: ORDER FORM -->
+  <div class="flow-screen order-screen" id="flowScreen3">
+    <div class="order-inner">
+
+      <!-- Header -->
+      <p class="order-eyebrow">You're One Step Away</p>
+      <h2 class="order-title">Complete Your Order</h2>
+
+      <!-- Address pill -->
+      <div class="order-listing-pill">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:2px;"><path d="M7 1L1 5v8h3v-4h6v4h3V5L7 1z" stroke="#8C6A32" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        <div>
+          <strong id="orderPillAddress">Address confirmed</strong>
+          <span id="orderPillMeta">Cinematic walkthrough video · Delivered in 2 hours</span>
+        </div>
+      </div>
+
+      <!-- What's Included -->
+      <div class="order-includes-section">
+        <p class="order-section-label">What's Included — $199</p>
+        <div class="order-includes-grid">
+          <div class="order-include-item">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M5 9l3 3 5-5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>4K Cinematic Walkthrough</strong><span>Built from your existing listing photos — no photographer needed</span></div>
+          </div>
+          <div class="order-include-item">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M5 9l3 3 5-5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>Licensed Background Music</strong><span>Professionally matched to the property's character and price point</span></div>
+          </div>
+          <div class="order-include-item">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M5 9l3 3 5-5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>MLS Compliant &amp; Upload-Ready</strong><span>Formatted for Zillow, Realtor.com, and your MLS — no editing needed</span></div>
+          </div>
+          <div class="order-include-item">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#8C6A32" stroke-width="1.3"/><path d="M5 9l3 3 5-5" stroke="#8C6A32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><strong>2-Hour Delivery Guarantee</strong><span>Video in your inbox within 2 hours of payment — or it's free</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add-ons -->
+      <div class="order-addons-section">
+        <p class="order-section-label">Add-Ons <span style="color:var(--ink-soft);font-weight:300;letter-spacing:0;">— optional</span></p>
+        <div class="order-addons-list" id="orderAddonsList">
+          <!-- Rendered from SITE_CONFIG.addons in JS -->
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form class="order-form" id="orderForm" onsubmit="submitOrder(event)">
+        <div class="order-row">
+          <div class="order-group"><label>First Name</label><input type="text" id="oFirstName" placeholder="Jane" required></div>
+          <div class="order-group"><label>Last Name</label><input type="text" id="oLastName" placeholder="Smith" required></div>
+        </div>
+        <div class="order-row">
+          <div class="order-group"><label>Email Address</label><input type="email" id="oEmail" placeholder="jane@compass.com" required></div>
+          <div class="order-group"><label>Phone</label><input type="tel" id="oPhone" placeholder="(407) 555-0100"></div>
+        </div>
+        <div class="order-group"><label>Brokerage</label><input type="text" id="oBrokerage" placeholder="Compass, Coldwell Banker..."></div>
+        <div class="order-group"><label>Listing URL or Address</label><input type="text" id="oListingUrl" readonly></div>
+        <div class="order-group"><label>Notes (Optional)</label><textarea id="oNotes" placeholder="Style preferences, special features, rush request..."></textarea></div>
+
+        <!-- Order total -->
+        <div class="order-total-row">
+          <div class="order-total-left">
+            <div class="order-price-amount">
+              <span class="order-price-orig" id="oPriceOrig"><sup>$</sup><span id="oPriceNum">199</span></span>
+              <span class="order-price-new" id="oPriceNew"><sup>$</sup><span id="oDiscountedNum">99</span></span>
+            </div>
+            <div class="order-price-label" id="oPriceLabel">Total</div>
+            <div class="order-lifetime-badge" id="oLifetimeBadge">★ Lifetime Rate — Locked In Forever</div>
+          </div>
+          <div class="order-total-breakdown" id="orderTotalBreakdown">
+            <div class="order-total-line"><span>Cinematic Walkthrough Video</span><span>$199</span></div>
+            <div id="orderAddonLines"></div>
+            <div class="order-total-line total" id="orderGrandTotal"><span>Total</span><span id="oGrandTotalAmt">$199</span></div>
+          </div>
+        </div>
+
+        <!-- Promo -->
+        <div style="margin-top:3px;">
+          <div class="order-promo">
+            <input type="text" id="oPromoInput" placeholder="Promo code (optional)" autocomplete="off">
+            <button type="button" class="order-promo-btn" id="oPromoBtn" onclick="applyOrderPromo()">Apply</button>
+          </div>
+          <p class="order-promo-msg" id="oPromoMsg"></p>
+        </div>
+
+        <!-- Payment -->
+        <div class="stripe-section">
+          <div class="stripe-section-label">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="#8C6A32" stroke-width="1.2"/><path d="M1 6h12" stroke="#8C6A32" stroke-width="1.2"/></svg>
+            Payment — Apple Pay, Google Pay, or Card
+          </div>
+          <div id="stripePaymentElement"></div>
+          <p class="stripe-card-error" id="stripeCardError"></p>
+        </div>
+
+        <button type="submit" class="order-submit" id="orderSubmitBtn">Pay $<span id="oPayAmount">199</span> &amp; Place Order →</button>
+        <div class="stripe-secure">
+          <svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M5.5 1L1 3v4c0 2.5 2 4.5 4.5 5 2.5-.5 4.5-2.5 4.5-5V3L5.5 1z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+          256-bit SSL · Secured by Stripe · Your card is never stored
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: CONFIRMATION -->
+  <div class="flow-screen confirm-screen" id="flowScreen4">
+    <div class="confirm-inner">
+      <div class="confirm-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6 10-12" stroke="#8C6A32" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <p class="confirm-eyebrow">Order Confirmed</p>
+      <h2 class="confirm-title">Your video is<br><em>in production.</em></h2>
+      <p class="confirm-sub">Payment confirmed. Our team is working on your walkthrough video now. You'll receive it in your inbox within 2 hours.</p>
+      <div class="confirm-details">
+        <div class="confirm-row"><span class="confirm-row-label">Property</span><span class="confirm-row-val" id="confirmAddress">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Agent</span><span class="confirm-row-val" id="confirmAgent">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Email</span><span class="confirm-row-val" id="confirmEmail">—</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Amount Paid</span><span class="confirm-row-val" id="confirmAmount">$199</span></div>
+        <div class="confirm-row"><span class="confirm-row-label">Delivery</span><span class="confirm-row-val">Within 2 hours</span></div>
+      </div>
+      <div class="confirm-next">
+        <strong>What happens next:</strong> You'll receive an order confirmation to your email shortly. Your cinematic walkthrough video will be delivered to the same address within 2 hours, MLS-ready and upload-ready.
+      </div>
+      <button class="btn-o" onclick="closeFlow()" style="border:1px solid rgba(14,14,16,.4);cursor:pointer;background:none;font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:15px 34px;">Back to site</button>
+    </div>
+  </div>
+
+</div><!-- /flow-overlay -->
+
+<script>
+/* ── SITE CONFIG (from config.js) ── */
+/* ============================================================
+   LUXARÉ SITE CONFIG
+   Edit this file to update any variable content on the site.
+   Commit to GitHub → Vercel redeploys automatically (~30 sec).
+   ============================================================ */
+
+const SITE_CONFIG = {
+
+  /* ── STRIPE ──────────────────────────────────────────────── */
+  // Publishable key is safe to be here — it's public-facing
+  // Get it from: stripe.com → Developers → API Keys → Publishable key
+  stripePublishableKey: 'pk_live_51I64hKDmDPdlOwv2VfySyx5Mx8aORcWrqY8LJ7ogBzl0VmZNlMZi5h6f3vntdPw2hFUBVhRqNVh63gIDb0PPEFf300sZ0z9FZd',
+  googlePlacesKey: 'AIzaSyCI3RmvuHMnFnIwq8PQV0VG3AhQrCLpxcU',
+
+  /* ── BUSINESS INFO ───────────────────────────────────────── */
+  business: {
+    name:       'LUXARÉ',
+    phone:      '(407) 720-5625',
+    phoneHref:  'tel:+14077205625',
+    email:      'support@luxaremedia.com',
+    tagline:    'Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready.',
+  },
+
+  /* ── PRICING & PROMO CODES ───────────────────────────────── */
+  pricing: {
+    basePrice: 199,   // ← change price here — updates everywhere on site
+
+    // Add, remove, or edit promo codes here.
+    // discount: dollars off basePrice
+    // label:    text shown under price when applied
+    // lifetime: true shows the "Locked In Forever" badge
+    promoCodes: {
+      'LIFETIME':  { discount: 100, label: 'Lifetime Rate — Locked In Forever', lifetime: true },
+      'LAUNCH100': { discount: 100, label: '$99 introductory rate' },
+      // 'SUMMER25': { discount: 25, label: '$25 off — Summer promo' },
+      // 'BROKER50': { discount: 50, label: '$50 off for brokerage partners' },
+    },
+  },
+
+  /* ── MEDIA ───────────────────────────────────────────────── */
+  // Add filenames matching files uploaded to your Vercel repo folder.
+  // Photos: 2–4 per property recommended. They cycle in a carousel.
+  // Video: null = shows "coming soon" placeholder.
+  media: {
+    home: {
+      // Supports up to 8 photos
+      photos: ['property1.jpg'],
+      video:  'property1.mp4',
+    },
+    property1: {
+      name:     'Windermere Estate',
+      location: 'Windermere, FL',
+      price:    '$3,500,000',
+      type:     'Luxury Estate · Mediterranean',
+      desc:     'Multiple listing photos transformed into a single cinematic walkthrough. Buyers spent 4× longer on the listing and arrived at showings already sold on the property.',
+      // Add up to 8 photos — each filename must exist in your repo root
+      photos:   ['property1.jpg'],
+      // photos: ['property1a.jpg','property1b.jpg','property1c.jpg','property1d.jpg','property1e.jpg','property1f.jpg','property1g.jpg','property1h.jpg'],
+      video:    'property1.mp4',
+    },
+    property2: {
+      name:     'Coming Soon',          // e.g. 'Bay Colony Estate'
+      location: 'Add your city, state',  // e.g. 'Naples, FL'
+      price:    '',                       // e.g. '$2,850,000'
+      type:     'Coming Soon',
+      desc:     'Update this config to add photos and video for this showcase.',
+      photos:   [],   // e.g. ['property2a.jpg', 'property2b.jpg', ...up to 8]
+      video:    null  // e.g. 'property2.mp4'
+    },
+    property3: {
+      name:     'Coming Soon',
+      location: 'Add your next example',
+      type:     'Coming Soon',
+      desc:     'Update this config to add photos and video for this showcase.',
+      photos:   [],
+      video:    null,
+    },
+  },
+
+  /* ── HERO SECTION ────────────────────────────────────────── */
+  hero: {
+    eyebrow:  'Luxury Real Estate Walkthrough Videos',
+    titleLine1: 'Your Listings.',
+    titleLine2: 'Cinema Quality.',   // wrapped in <em> italic gold
+    titleLine3: 'Delivered In 2 Hours.',
+    sub:      'Paste your listing link below — we take it from there.',
+    badge:    '2-Hour Turnaround · MLS Compliant · Ready to Upload',
+  },
+
+  /* ── STATS ───────────────────────────────────────────────── */
+  stats: {
+    heading: 'Our Agents Experience',
+    items: [
+      { num: '3.2×',   target: 3.2, suffix: '×',    label: 'More Qualified\nShowing Requests' },
+      { num: '20%',    target: null,suffix: null,    label: 'Below Average DOM —\n90-Day Avg Reduced to 70' },
+      { num: '4×',     target: 4,   suffix: '×',     label: 'More Referrals & Brand\nGrowth Among Luxury Sellers' },
+    ],
+  },
+
+  /* ── STRATEGY TILES (One Video. Everywhere.) ─────────────── */
+  strategyTiles: [
+    { title: 'MLS Upload',               desc: 'Post directly to your MLS listing. Stand out the moment buyers search your zip code.' },
+    { title: 'Brokerage Website',        desc: 'Elevate your profile on your brokerage site. Premium listings attract premium sellers.' },
+    { title: 'Social Media',             desc: 'Instagram, LinkedIn, Facebook. Cinematic content stops the scroll and builds your luxury brand.' },
+    { title: 'Email Campaigns',          desc: 'Send to your buyer list, local partners, and past clients. Video emails get 3× more clicks.' },
+    { title: 'Personal Landing Page',    desc: 'Showcase your portfolio. Every luxury seller you meet will look you up — make it count.' },
+    { title: 'Local Partners & Referrals', desc: 'Share with mortgage brokers, designers, and developers. Premium media builds premium networks.' },
+    { title: 'Listing Presentations',    desc: 'Walk into every seller meeting with a sample video. Close the listing before the competition gets a callback.' },
+    { title: 'International & Remote Buyers', desc: 'Out-of-market and international buyers get a complete feel for the property before they book a flight.' },
+  ],
+
+  /* ── BENEFITS ────────────────────────────────────────────── */
+  benefits: [
+    {
+      title: 'Win More Listing Appointments',
+      titleEm: '',
+      body: 'Luxury sellers expect premium marketing before they sign. Bring a cinematic walkthrough into the listing presentation and instantly separate yourself from agents using standard photography alone. High-end sellers want proof their property will be positioned at a luxury level from day one.',
+    },
+    {
+      title: 'Reduce Days on Market',
+      titleEm: '',
+      body: 'Luxury walkthroughs create stronger buyer intent before the showing even happens. Buyers spend more time engaging with immersive listings, resulting in more qualified inquiries, faster showing decisions, and reduced friction during the sales cycle.',
+    },
+    {
+      title: 'Protect Price & Commission Integrity',
+      titleEm: '',
+      body: 'Premium presentation supports premium pricing. When a property feels elevated online, buyers enter negotiations with stronger perceived value. That helps reduce aggressive low offers, strengthens seller confidence, and protects commission positioning.',
+    },
+    {
+      title: 'Compound Brokerage Brand Exposure',
+      titleEm: '',
+      body: "Every luxury listing becomes a branding asset for future business. A single standout listing doesn't just market the property — it markets the agent behind it. Consistent cinematic media increases shareability, retention, referral potential, and repeat exposure across social platforms.",
+    },
+  ],
+
+  /* ── PROCESS STEPS ───────────────────────────────────────── */
+  process: [
+    { title: 'Submit Your Listing URL',  note: 'Takes less than 60 seconds',                                highlight: false },
+    { title: 'Confirm Your Details',     note: 'Review listing info & order details',                       highlight: false },
+    { title: 'Place Your Order',         note: 'Secure checkout — Apple Pay, Google Pay, or card',          highlight: false },
+    { title: 'Video in Your Inbox',      note: 'Under 2 hours — or it\'s free',                            highlight: true  },
+  ],
+
+  /* ── SPEED BANNER ────────────────────────────────────────── */
+  speed: {
+    num:   '2 hrs',
+    label: 'Average Delivery Time',
+    sub:   'From confirmed order to your inbox — most videos arrive in under 2 hours, ready to upload and convert.',
+    cta:   'Get Your Video Today',
+  },
+
+  /* ── CTA STRIP ───────────────────────────────────────────── */
+  cta: {
+    title:  'Ready to Transform',
+    titleEm: 'Your Next Listing?', // wrapped in <em>
+    sub:    'Submit a listing URL. Invoice in minutes. Video in 2 hours. MLS-ready.',
+    btnLabel: 'Order Your Video',
+  },
+
+  /* ── LOADER TIMING (milliseconds) ───────────────────────── */
+  // Adjust these to control how fast/slow the loading screen feels.
+  // stepDelays: when each step starts spinning (ms from start)
+  // stepDones:  when each step shows a checkmark (ms from start)
+  // confirmedAt: when "Address Confirmed" screen appears
+  // advanceAt:   when it moves to the order form
+  loader: {
+    stepDelays:  [0, 1200, 2400, 3600, 4800],
+    stepDones:   [900, 2100, 3300, 4500, 5700],
+    confirmedAt: 6200,
+    advanceAt:   7800,
+  },
+
+  /* ── ADD-ONS ─────────────────────────────────────────────── */
+  // Add or remove add-ons here. Each shows as a checkbox on the order form.
+  // id: unique key (no spaces), label: display name, desc: short description, price: number
+  addons: [
+    {
+      id:    'listing_report',
+      label: 'Listing Optimization Report',
+      desc:  'AI-powered analysis of your listing copy — headline, description, and key details reviewed for engagement and buyer appeal.',
+      price: 4.95,
+    },
+    {
+      id:    'logo_overlay',
+      label: 'Add Logo to Video',
+      desc:  'Your brokerage or personal brand logo watermarked onto the walkthrough video.',
+      price: 4.95,
+    },
+    // Add more add-ons here:
+    // { id: 'rush_delivery', label: 'Rush Delivery (1 Hour)', desc: 'Guaranteed delivery within 1 hour.', price: 29 },
+  ],
+  footer: {
+    tagline: 'Luxury real estate walkthrough videos — delivered in 2 hours, MLS-ready.',
+    copy:    '© 2025 LUXARÉ Media. All rights reserved.',
+    badge:   'MLS Compliant · 2-Hour Delivery Guaranteed',
+    nav: [
+      { label: 'Our Work',   href: '#transform' },
+      { label: 'Services',   href: '#offer'     },
+      { label: 'Process',    href: '#process'   },
+      { label: 'Order Now',  href: '#order'     },
+    ],
+    contact: [
+      { label: '(407) 720-5625',          href: 'tel:+14077205625'              },
+      { label: 'support@luxaremedia.com', href: 'mailto:support@luxaremedia.com'},
+    ],
+  },
+
+};
+
+</script>
+<script>
+/* ── Pull from SITE_CONFIG (config.js) ── */
+const MEDIA_CONFIG = SITE_CONFIG.media;
+const PRICING      = SITE_CONFIG.pricing;
+
+/* ── RENDER ALL CONFIG-DRIVEN CONTENT ── */
+function renderFromConfig() {
+  const C = SITE_CONFIG;
+
+  /* Hero */
+  setText('heroEyebrow',  C.hero.eyebrow);
+  setHTML('heroTitle',    `${C.hero.titleLine1}<br><em>${C.hero.titleLine2}</em><br>${C.hero.titleLine3}`);
+  setText('heroSub',      C.hero.sub);
+  setText('heroBadge',    C.hero.badge);
+
+  /* Stats */
+  setText('statsHeading', C.stats.heading);
+  C.stats.items.forEach((s, i) => {
+    const numEl   = document.getElementById('statNum'   + i);
+    const labelEl = document.getElementById('statLabel' + i);
+    if (numEl) {
+      if (s.target) { numEl.dataset.target = s.target; numEl.dataset.suffix = s.suffix || ''; }
+      numEl.textContent = s.num;
+    }
+    if (labelEl) labelEl.innerHTML = s.label.replace('\n', '<br>');
+  });
+
+  /* Speed banner */
+  setText('speedNum',   C.speed.num);
+  setText('speedLabel', C.speed.label);
+  setText('speedSub',   C.speed.sub);
+  setText('speedCta',   C.speed.cta);
+
+  /* Strategy tiles */
+  const tileGrid = document.getElementById('strategyGrid');
+  if (tileGrid) {
+    const icons = tileGrid.querySelectorAll('.use-icon');
+    const tiles = tileGrid.querySelectorAll('.use-tile');
+    C.strategyTiles.forEach((t, i) => {
+      const tile = tiles[i]; if (!tile) return;
+      const titleEl = tile.querySelector('.use-title');
+      const descEl  = tile.querySelector('.use-desc');
+      if (titleEl) titleEl.textContent = t.title;
+      if (descEl)  descEl.textContent  = t.desc;
+    });
+  }
+
+  /* Benefits */
+  C.benefits.forEach((b, i) => {
+    const q = document.getElementById('benefitQ' + i);
+    const p = document.getElementById('benefitP' + i);
+    if (q) q.innerHTML = `${b.title} <em>${b.titleEm}</em>`;
+    if (p) p.textContent = b.body;
+  });
+
+  /* Process steps */
+  C.process.forEach((s, i) => {
+    const h = document.getElementById('stepTitle' + i);
+    const n = document.getElementById('stepNote'  + i);
+    if (h) h.textContent = s.title;
+    if (n) { n.textContent = (s.highlight ? '⭑  ' : '') + s.note; n.className = 'step-note' + (s.highlight ? ' hl' : ''); }
+  });
+
+  /* CTA strip */
+  setHTML('ctaTitle', `${C.cta.title}<br><em>${C.cta.titleEm}</em>`);
+  setText('ctaSub',   C.cta.sub);
+  setText('ctaBtn',   C.cta.btnLabel);
+
+  /* Business info */
+  setText('footerTagline', C.footer.tagline);
+  setText('footerCopy',    C.footer.copy);
+  setText('footerBadge',   C.footer.badge);
+
+  /* Phone / email in contact details */
+  const phoneLink = document.getElementById('contactPhone');
+  if (phoneLink) { phoneLink.textContent = C.business.phone; phoneLink.href = C.business.phoneHref; }
+  const emailLink = document.getElementById('contactEmail');
+  if (emailLink) { emailLink.textContent = C.business.email; emailLink.href = 'mailto:' + C.business.email; }
+
+  /* Price display */
+  const priceEl = document.getElementById('priceDisplay');
+  if (priceEl) priceEl.textContent = PRICING.basePrice;
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el && val !== undefined) el.textContent = val; }
+function setHTML(id, val) { const el = document.getElementById(id); if (el && val !== undefined) el.innerHTML  = val; }
+
+renderFromConfig();
+
+/* MEDIA BUILDER */
+function buildCarousel(trackId,dotsId,navId,photos,key){
+  const track=document.getElementById(trackId),dotsEl=document.getElementById(dotsId),nav=document.getElementById(navId);
+  if(!track)return;
+  if(photos&&photos.length>0){
+    track.innerHTML='';
+    photos.forEach(src=>{const img=document.createElement('img');img.src=src;img.alt='Listing photo';img.style.cssText='flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;';track.appendChild(img);});
+    if(dotsEl){dotsEl.innerHTML='';photos.forEach((_,i)=>{const dot=document.createElement('button');dot.className='car-dot'+(i===0?' active':'');dot.setAttribute('aria-label','Photo '+(i+1));dot.onclick=()=>carouselGo(key,i);dotsEl.appendChild(dot);});}
+    if(nav)nav.style.display=photos.length<=1?'none':'flex';
+  }else{
+    track.innerHTML='<div style="flex:0 0 100%;background:#1a1a1c;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" style="opacity:.2;"><rect x="4" y="8" width="36" height="26" rx="2" stroke="#F1F1F2" stroke-width="1.5"/><circle cx="16" cy="18" r="4" stroke="#F1F1F2" stroke-width="1.5"/><path d="M4 28l9-9 7 7 5-5 15 12" stroke="#F1F1F2" stroke-width="1.5" stroke-linecap="round"/></svg><p style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,241,234,.2);margin-top:10px;">Photos coming soon</p></div>';
+    if(nav)nav.style.display='none';
+  }
+}
+function buildVideo(videoId,src){
+  const v=document.getElementById(videoId);if(!v)return;
+  if(src){v.innerHTML=`<source src="${src}" type="video/mp4">`;v.load();}
+  else{const ph=document.createElement('div');ph.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0e0c09;';ph.innerHTML='<svg width="44" height="44" viewBox="0 0 44 44" fill="none" style="opacity:.2;"><circle cx="22" cy="22" r="18" stroke="#C9A96E" stroke-width="1.5"/><path d="M18 14l14 8-14 8V14z" stroke="#C9A96E" stroke-width="1.5" stroke-linejoin="round"/></svg><p style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.2);margin-top:10px;">Video coming soon</p>';v.parentElement.appendChild(ph);}
+}
+function applyMediaConfig(){
+  buildCarousel('homeTrack','homeDots','homeCarNav',MEDIA_CONFIG.home.photos,'home');
+  buildVideo('homeVideo',MEDIA_CONFIG.home.video);
+  [1,2,3].forEach(n=>{const cfg=MEDIA_CONFIG['property'+n];if(!cfg)return;buildCarousel('track'+n,'dots'+n,'carnav'+n,cfg.photos,n);buildVideo('video'+n,cfg.video);});
+}
+applyMediaConfig();
+
+// Populate second transform example header from config
+(function populateExample2() {
+  const p2 = MEDIA_CONFIG.property2;
+  if (!p2) return;
+  const titleEl = document.getElementById('example2Title');
+  const locEl   = document.getElementById('example2Location');
+  if (titleEl && p2.name && p2.name !== 'Coming Soon') {
+    titleEl.innerHTML = p2.name;
+  } else if (titleEl) {
+    titleEl.innerHTML = 'See the <em>Difference</em>';
+  }
+  if (locEl) {
+    const parts = [p2.location, p2.price].filter(Boolean);
+    locEl.textContent = parts.length ? parts.join(' · ') : '';
+  }
+})();
+
+/* CAROUSEL */
+const carouselState={home:0,1:0,2:0,3:0};
+function carouselGo(key,idx){
+  const cfgKey=typeof key==='number'?'property'+key:key;
+  const cfg=MEDIA_CONFIG[cfgKey];if(!cfg||!cfg.photos||!cfg.photos.length)return;
+  carouselState[key]=((idx%cfg.photos.length)+cfg.photos.length)%cfg.photos.length;
+  const t=document.getElementById(key==='home'?'homeTrack':'track'+key);
+  if(t)t.style.transform=`translateX(-${carouselState[key]*100}%)`;
+  document.querySelectorAll('#'+(key==='home'?'homeDots':'dots'+key)+' .car-dot').forEach((d,i)=>d.classList.toggle('active',i===carouselState[key]));
+}
+function carouselPrev(k){carouselGo(k,carouselState[k]-1);}
+function carouselNext(k){carouselGo(k,carouselState[k]+1);}
+// Auto-advance disabled — use arrow buttons to browse photos
+
+/* URL BAR */
+/* ── SMART URL / ADDRESS INPUT ── */
+var smartInput = { mode: 'address', value: '', address: '', placeId: '' };
+var placesAutocomplete = null;
+
+function isUrl(str) {
+  return /^https?:\/\//i.test(str) || /^(zillow|realtor|redfin|drive\.google|dropbox)\./i.test(str) || (str.includes('.com/') && !str.includes(' '));
+}
+
+function detectSource(url) {
+  if (url.includes('zillow'))       return 'Zillow';
+  if (url.includes('realtor'))      return 'Realtor.com';
+  if (url.includes('redfin'))       return 'Redfin';
+  if (url.includes('drive.google')) return 'Google Drive';
+  if (url.includes('dropbox'))      return 'Dropbox';
+  return 'Listing URL';
+}
+
+function updateInputIcon(mode) {
+  document.getElementById('iconAddress').style.display = mode === 'address' ? 'block' : 'none';
+  document.getElementById('iconUrl').style.display     = mode === 'url'     ? 'block' : 'none';
+}
+
+/* ── CUSTOM PLACES AUTOCOMPLETE ── */
+let acService       = null;
+let acDropdown      = null;
+let acActive        = -1;
+let acResults       = [];
+
+function buildAcDropdown(inputId) {
+  // Create our own dropdown element
+  const wrap = document.getElementById(inputId).closest('.url-bar-wrap') ||
+               document.getElementById(inputId).parentElement;
+  let dd = wrap.querySelector('.custom-ac');
+  if (!dd) {
+    dd = document.createElement('div');
+    dd.className = 'custom-ac';
+    wrap.appendChild(dd);
+  }
+  return dd;
+}
+
+function showAcDropdown(inputId, results) {
+  const dd = buildAcDropdown(inputId);
+  acResults  = results;
+  acActive   = -1;
+  if (!results.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = results.map((r, i) =>
+    `<div class="custom-ac-item" data-idx="${i}">
+      <svg width="12" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink:0;opacity:.4;">
+        <path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5z" fill="#8C6A32"/>
+        <circle cx="6" cy="5" r="1.8" fill="#F5F5F6"/>
+      </svg>
+      <span>${r.description}</span>
+    </div>`
+  ).join('');
+  dd.style.display = 'block';
+  dd.querySelectorAll('.custom-ac-item').forEach(item => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      selectAcResult(inputId, parseInt(item.dataset.idx));
+    });
+  });
+}
+
+function hideAcDropdown(inputId) {
+  const dd = buildAcDropdown(inputId);
+  dd.style.display = 'none';
+  acActive = -1;
+}
+
+function selectAcResult(inputId, idx) {
+  const r = acResults[idx]; if (!r) return;
+  const input = document.getElementById(inputId);
+  input.value = r.description;
+  smartInput.mode    = 'address';
+  smartInput.address = r.description;
+  smartInput.value   = r.description;
+  updateInputIcon('address');
+  hideAcDropdown(inputId);
+}
+
+async function queryAc(inputId, val) {
+  if (!val || val.length < 3 || isUrl(val)) { hideAcDropdown(inputId); return; }
+  try {
+    // New API (March 2025+)
+    const { AutocompleteSuggestion } = await google.maps.importLibrary('places');
+    const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input: val,
+      includedRegionCodes: ['us'],
+    });
+    const results = suggestions
+      .filter(s => s.placePrediction)
+      .map(s => ({ description: s.placePrediction.text.toString() }))
+      .slice(0, 6);
+    results.length ? showAcDropdown(inputId, results) : hideAcDropdown(inputId);
+  } catch(err) {
+    // Fallback to legacy API
+    try {
+      const svc = new google.maps.places.AutocompleteService();
+      svc.getPlacePredictions(
+        { input: val, types: ['address'], componentRestrictions: { country: 'us' } },
+        (predictions, status) => {
+          if (status === 'OK' && predictions) showAcDropdown(inputId, predictions);
+          else hideAcDropdown(inputId);
+        }
+      );
+    } catch(e2) { hideAcDropdown(inputId); }
+  }
+}
+
+function initPlacesAutocomplete() {
+  if (acService || typeof google === 'undefined') return;
+  acService = true; // mark initialized
+
+  ['urlInput', 'popupUrlInput'].forEach(inputId => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    let debounce;
+    input.addEventListener('input', function() {
+      clearTimeout(debounce);
+      const val = this.value.trim();
+      if (isUrl(val)) {
+        smartInput.mode    = 'url';
+        smartInput.value   = val;
+        smartInput.address = detectSource(val) + ' listing';
+        updateInputIcon('url');
+        hideAcDropdown(inputId);
+        return;
+      }
+      smartInput.mode  = 'address';
+      smartInput.value = val;
+      updateInputIcon('address');
+      if (val.length < 3) { hideAcDropdown(inputId); return; }
+      debounce = setTimeout(() => queryAc(inputId, val), 250);
+    });
+    input.addEventListener('keydown', function(e) {
+      const dd = buildAcDropdown(inputId);
+      const items = dd.querySelectorAll('.custom-ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        acActive = Math.min(acActive + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('active', i === acActive));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        acActive = Math.max(acActive - 1, -1);
+        items.forEach((el, i) => el.classList.toggle('active', i === acActive));
+      } else if (e.key === 'Enter' && acActive >= 0) {
+        e.preventDefault();
+        selectAcResult(inputId, acActive);
+      } else if (e.key === 'Escape') {
+        hideAcDropdown(inputId);
+      }
+    });
+    input.addEventListener('blur', () => setTimeout(() => hideAcDropdown(inputId), 150));
+  });
+}
+
+window.initGoogleMaps = function() {
+  try {
+    initPlacesAutocomplete();
+    console.log('✓ Google Places (custom UI) initialized');
+  } catch(e) {
+    console.warn('Google Places failed:', e.message);
+  }
+};
+
+// Also try on first keypress in case async loaded
+document.getElementById('urlInput').addEventListener('focus', function() {
+  if (typeof google !== 'undefined' && !acService) initPlacesAutocomplete();
+});
+
+/* ── URL POPUP ── */
+function openUrlPopup() {
+  document.getElementById('urlPopup').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('popupUrlInput').focus(), 100);
+}
+
+function closeUrlPopup(e) {
+  // Close if clicking the overlay background (not the popup itself)
+  if (e && e.target !== document.getElementById('urlPopup')) return;
+  document.getElementById('urlPopup').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function submitPopupUrl() {
+  const val = document.getElementById('popupUrlInput').value.trim();
+  if (!val) { document.getElementById('popupUrlInput').focus(); return; }
+  document.getElementById('urlPopup').classList.remove('active');
+  document.body.style.overflow = '';
+  smartInput.value = val;
+  if (!smartInput.address) smartInput.address = val;
+  openFlow(val);
+}
+
+document.getElementById('popupUrlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitPopupUrl();
+  if (e.key === 'Escape') closeUrlPopup();
+});
+document.getElementById('popupUrlInput').addEventListener('focus', () => {
+  if (typeof google !== 'undefined' && !acService) initPlacesAutocomplete();
+});
+var popupPlacesAC = null;
+
+// Also close popup on Escape key globally
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('urlPopup').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+/* ══════════════════════════════════════════
+   CHECKOUT FLOW
+══════════════════════════════════════════ */
+
+// Holds all order state across screens
+const ORDER = {
+  url: '', source: '', address: '', meta: '',
+  beds: '', baths: '', sqft: '', year: '',
+  agentName: '', agentBrokerage: '',
+  firstName: '', lastName: '', email: '', phone: '',
+  brokerage: '', notes: '',
+  promoCode: '', discount: 0, finalPrice: 199,
+};
+
+// Simulated listing data by platform
+const LISTING_DATA = {
+  'zillow.com': {
+    address: '4821 Isleworth Country Club Dr, Windermere FL 34786',
+    meta: 'Listed for $2,850,000 · Active',
+    beds: '6', baths: '5.5', sqft: '6,420', year: '2017',
+    agent: 'Michael Reyes', brokerage: 'Luxury Portfolio · Orlando, FL',
+  },
+  'realtor.com': {
+    address: '9332 Bay Colony Dr, Naples FL 34108',
+    meta: 'Listed for $3,200,000 · New Listing',
+    beds: '5', baths: '4', sqft: '5,100', year: '2020',
+    agent: 'Sarah Dunne', brokerage: 'Premier Sotheby\'s · Naples, FL',
+  },
+  'redfin.com': {
+    address: '1120 Harbor View Dr, Miami Beach FL 33139',
+    meta: 'Listed for $4,750,000 · Active',
+    beds: '5', baths: '5', sqft: '4,880', year: '2021',
+    agent: 'Carlos Vega', brokerage: 'Redfin · Miami, FL',
+  },
+  'default': {
+    address: '1 Luxury Estate Ln, Orlando FL 32827',
+    meta: 'Listed · Active',
+    beds: '5', baths: '4', sqft: '5,000', year: '2018',
+    agent: 'Your Agent', brokerage: 'Your Brokerage',
+  },
+};
+
+function detectSource(url) {
+  if (url.includes('zillow'))       return 'zillow.com';
+  if (url.includes('realtor'))      return 'realtor.com';
+  if (url.includes('redfin'))       return 'redfin.com';
+  if (url.includes('drive.google')) return 'Google Drive';
+  if (url.includes('dropbox'))      return 'Dropbox';
+  return 'default';
+}
+
+// Open the flow overlay
+function openFlow(val) {
+  if (!val || val.length < 5) { alert('Please enter a listing address or URL.'); return; }
+  ORDER.url    = val;
+  ORDER.source = isUrl(val) ? detectSource(val) : 'address';
+  // Store confirmed address for the order form
+  if (smartInput.address) ORDER.address = smartInput.address;
+  else ORDER.address = val;
+  document.getElementById('flowOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setFlowStep(0);
+  showFlowScreen(1);
+  runLoader();
+}
+
+function closeFlow() {
+  document.getElementById('flowOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  // Reset screens
+  document.querySelectorAll('.flow-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('flowScreen1').classList.add('active');
+}
+
+let showFlowScreen = function(n) {
+  document.querySelectorAll('.flow-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('flowScreen' + n).classList.add('active');
+  document.getElementById('flowOverlay').scrollTop = 0;
+  setFlowStep(n - 1);
+  if (n === 3) { renderAddons(); updateOrderTotal(); }
+};
+
+function setFlowStep(active) {
+  document.querySelectorAll('.flow-step-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === active);
+    d.classList.toggle('done', i < active);
+  });
+}
+
+// ── SCREEN 1: LOADER → ADDRESS CONFIRMED ──
+function runLoader() {
+  const loaderUrl     = document.getElementById('loaderUrl');
+  const loaderTitle   = document.getElementById('loaderTitle');
+  const loaderRing    = document.getElementById('loaderRing');
+  const confirmed     = document.getElementById('loaderConfirmed');
+  const confirmedAddr = document.getElementById('loaderConfirmedAddr');
+
+  if (loaderUrl)   loaderUrl.textContent = ORDER.url || ORDER.address;
+  if (loaderTitle) loaderTitle.innerHTML = 'Confirming your <em>listing address</em>';
+
+  const steps = ['lstep0','lstep1','lstep2','lstep3','lstep4'];
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'loader-step';
+    el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-wait"></div>';
+  });
+
+  // Timing pulled from config — adjust in config.js
+  const delays = SITE_CONFIG.loader.stepDelays;
+  const dones  = SITE_CONFIG.loader.stepDones;
+
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    setTimeout(() => {
+      el.classList.add('active');
+      el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-spinner"></div>';
+    }, delays[i]);
+    setTimeout(() => {
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('.loader-step-icon').innerHTML = '<div class="ls-check">✓</div>';
+    }, dones[i]);
+  });
+
+  // At confirmedAt ms — show "Address Confirmed"
+  setTimeout(() => {
+    if (loaderRing)     loaderRing.style.display   = 'none';
+    if (loaderTitle)    loaderTitle.style.display   = 'none';
+    if (loaderUrl)      loaderUrl.style.display     = 'none';
+    if (confirmedAddr)  confirmedAddr.textContent   = ORDER.address || ORDER.url;
+    if (confirmed)      confirmed.classList.add('show');
+    const stepsEl = document.querySelector('.loader-steps');
+    if (stepsEl) stepsEl.style.opacity = '0';
+  }, SITE_CONFIG.loader.confirmedAt);
+
+  // At advanceAt ms — advance to order form and reset loader
+  setTimeout(() => {
+    if (loaderRing)  loaderRing.style.display  = '';
+    if (loaderTitle) loaderTitle.style.display  = '';
+    if (loaderUrl)   loaderUrl.style.display    = '';
+    if (confirmed)   confirmed.classList.remove('show');
+    const stepsEl = document.querySelector('.loader-steps');
+    if (stepsEl) stepsEl.style.opacity = '1';
+    goToOrderForm();
+  }, SITE_CONFIG.loader.advanceAt);
+}
+
+// ── RENDER ADD-ONS ──
+let selectedAddons = {};
+
+function renderAddons() {
+  const container = document.getElementById('orderAddonsList');
+  if (!container) return;
+  const addons = SITE_CONFIG.addons || [];
+  if (!addons.length) { container.closest('.order-addons-section').style.display = 'none'; return; }
+  container.innerHTML = addons.map(a => `
+    <div class="order-addon" id="addon_${a.id}" onclick="toggleAddon('${a.id}')">
+      <div class="order-addon-check" id="addonCheck_${a.id}">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l3 3 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="order-addon-body">
+        <p class="order-addon-title">${a.label}</p>
+        <p class="order-addon-desc">${a.desc}</p>
+      </div>
+      <div class="order-addon-price">+$${a.price.toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+function toggleAddon(id) {
+  const addon = (SITE_CONFIG.addons || []).find(a => a.id === id);
+  if (!addon) return;
+  selectedAddons[id] = !selectedAddons[id];
+  const el = document.getElementById('addon_' + id);
+  if (el) el.classList.toggle('selected', selectedAddons[id]);
+  updateOrderTotal();
+}
+
+function updateOrderTotal() {
+  const base     = PRICING.basePrice;
+  const discount = ORDER._discount || 0;
+  const addonsTotal = (SITE_CONFIG.addons || [])
+    .filter(a => selectedAddons[a.id])
+    .reduce((sum, a) => sum + a.price, 0);
+
+  const subtotal   = base - discount;
+  const grandTotal = subtotal + addonsTotal;
+
+  ORDER.finalPrice = grandTotal;
+  ORDER._addons    = (SITE_CONFIG.addons || []).filter(a => selectedAddons[a.id]).map(a => a.label);
+
+  // Update breakdown lines
+  const addonLines = document.getElementById('orderAddonLines');
+  if (addonLines) {
+    addonLines.innerHTML = (SITE_CONFIG.addons || [])
+      .filter(a => selectedAddons[a.id])
+      .map(a => `<div class="order-total-line"><span>${a.label}</span><span>$${a.price.toFixed(2)}</span></div>`)
+      .join('');
+  }
+
+  // Update grand total display
+  const gtEl = document.getElementById('oGrandTotalAmt');
+  if (gtEl) gtEl.textContent = '$' + grandTotal.toFixed(2).replace(/\.00$/, '');
+
+  // Update pay button
+  syncPayAmount();
+}
+
+function syncPayAmount() {
+  const el = document.getElementById('oPayAmount');
+  if (el) el.textContent = (ORDER.finalPrice || PRICING.basePrice).toFixed(2).replace(/\.00$/, '');
+}
+
+// ── ADVANCE TO ORDER FORM ──
+function goToOrderForm() {
+  document.getElementById('oListingUrl').value   = ORDER.url || ORDER.address;
+  document.getElementById('orderPillAddress').textContent = ORDER.address || ORDER.url;
+  document.getElementById('orderPillMeta').textContent    = 'Cinematic walkthrough · Delivered in 2 hours';
+  document.getElementById('oPriceNum').textContent        = PRICING.basePrice;
+  renderAddons();
+  updateOrderTotal();
+  showFlowScreen(3);
+}
+
+// ── SCREEN 3: ORDER FORM PROMO ──
+let orderDiscount = 0;
+function applyOrderPromo() {
+  const input = document.getElementById('oPromoInput');
+  const code  = input.value.trim().toUpperCase();
+  const msg   = document.getElementById('oPromoMsg');
+  const promo = PRICING.promoCodes[code];
+  if (promo) {
+    orderDiscount = promo.discount;
+    const newPrice = PRICING.basePrice - orderDiscount;
+    ORDER.promoCode = code;
+    ORDER.discount  = orderDiscount;
+    ORDER.finalPrice = newPrice;
+    document.getElementById('oPriceOrig').classList.add('struck');
+    document.getElementById('oPriceNew').style.display = 'flex';
+    document.getElementById('oDiscountedNum').textContent = newPrice;
+    document.getElementById('oPriceLabel').textContent = promo.label;
+    if (promo.lifetime) document.getElementById('oLifetimeBadge').style.display = 'block';
+    msg.textContent = promo.lifetime
+      ? `✓ Lifetime deal — $${newPrice}/video locked in forever.`
+      : `✓ Code applied — $${newPrice} per video.`;
+    msg.className = 'order-promo-msg valid';
+    input.disabled = true;
+    document.getElementById('oPromoBtn').disabled = true;
+    ORDER._discount = orderDiscount;
+    updateOrderTotal();
+  } else {
+    msg.textContent = "That code doesn't look right.";
+    msg.className = 'order-promo-msg invalid';
+  }
+}
+document.getElementById('oPromoInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyOrderPromo(); } });
+
+// ── STRIPE PAYMENT ELEMENT SETUP ──
+const STRIPE_PUBLISHABLE_KEY = SITE_CONFIG.stripePublishableKey || 'pk_live_51I64hKDmDPdlOwv2VfySyx5Mx8aORcWrqY8LJ7ogBzl0VmZNlMZi5h6f3vntdPw2hFUBVhRqNVh63gIDb0PPEFf300sZ0z9FZd';
+
+let stripeInstance  = null;
+let stripeElements  = null;
+let stripePayEl     = null;
+
+async function initStripeElements() {
+  if (stripeInstance) return;
+  try {
+    stripeInstance = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+    // Create PaymentIntent first so we have a clientSecret for the Element
+    const intentRes = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:      document.getElementById('oEmail').value.trim() || 'pending@luxaremedia.com',
+        address:    ORDER.address,
+        listingUrl: ORDER.url,
+        promoCode:  ORDER.promoCode || null,
+        finalPrice: ORDER.finalPrice || PRICING.basePrice,
+      }),
+    });
+
+    const intentData = await intentRes.json();
+    if (!intentData.clientSecret) throw new Error('No client secret');
+
+    // Store for use in submitOrder
+    ORDER._clientSecret = intentData.clientSecret;
+
+    stripeElements = stripeInstance.elements({
+      clientSecret: intentData.clientSecret,
+      appearance: {
+        theme: 'flat',
+        variables: {
+          colorPrimary:       '#8C6A32',
+          colorBackground:    '#EBEBEC',
+          colorText:          '#0A0A0C',
+          colorDanger:        '#c0392b',
+          fontFamily:         '"Montserrat", sans-serif',
+          fontSizeBase:       '13px',
+          borderRadius:       '0px',
+          spacingUnit:        '4px',
+        },
+        rules: {
+          '.Input': { border: '1px solid rgba(140,106,50,0.18)', padding: '12px 14px' },
+          '.Input:focus': { border: '1px solid rgba(140,106,50,0.5)', boxShadow: 'none' },
+          '.Label': { fontSize: '8px', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#5C440F' },
+          '.Tab': { border: '1px solid rgba(140,106,50,0.15)', backgroundColor: '#DEDFE0' },
+          '.Tab--selected': { border: '1px solid rgba(140,106,50,0.5)', backgroundColor: '#EBEBEC' },
+          '.Tab:hover': { backgroundColor: 'rgba(140,106,50,0.06)' },
+        },
+      },
+    });
+
+    stripePayEl = stripeElements.create('payment', {
+      layout: { type: 'tabs', defaultCollapsed: false },
+    });
+    stripePayEl.mount('#stripePaymentElement');
+
+  } catch(err) {
+    console.warn('Stripe Payment Element error:', err.message);
+    document.getElementById('stripePaymentElement').innerHTML =
+      '<p style="font-size:11px;color:#888;padding:12px 0;">Payment form unavailable. Please refresh and try again.</p>';
+  }
+}
+
+// Initialize Stripe when order screen becomes visible — hooked into showFlowScreen
+const _showFlowScreenOrig = showFlowScreen;
+showFlowScreen = function(n) {
+  _showFlowScreenOrig(n);
+  if (n === 3) {
+    // Wait 600ms so form fields are visible before initializing
+    setTimeout(initStripeElements, 600);
+  }
+};
+
+// Re-init Stripe if price changes (addon selected after Stripe loaded)
+async function reinitStripeIfNeeded() {
+  if (!stripeInstance) return;
+  // Reset so it re-creates with new amount
+  stripeInstance = null;
+  stripeElements = null;
+  stripePayEl    = null;
+  ORDER._clientSecret = null;
+  document.getElementById('stripePaymentElement').innerHTML = '';
+  await initStripeElements();
+}
+
+// Keep pay button amount in sync
+function syncPayAmount() {
+  const amt = (ORDER.finalPrice || PRICING.basePrice);
+  const el  = document.getElementById('oPayAmount');
+  if (el) el.textContent = Number.isInteger(amt) ? amt : amt.toFixed(2).replace(/\.00$/, '');
+}
+
+// ── SCREEN 3: SUBMIT ──
+async function submitOrder(e) {
+  e.preventDefault();
+  const btn = document.getElementById('orderSubmitBtn');
+  btn.textContent = 'Processing…';
+  btn.disabled = true;
+
+  ORDER.firstName  = document.getElementById('oFirstName').value.trim();
+  ORDER.lastName   = document.getElementById('oLastName').value.trim();
+  ORDER.email      = document.getElementById('oEmail').value.trim();
+  ORDER.phone      = document.getElementById('oPhone').value.trim();
+  ORDER.brokerage  = document.getElementById('oBrokerage').value.trim();
+  ORDER.notes      = document.getElementById('oNotes').value.trim();
+  if (!ORDER.finalPrice) ORDER.finalPrice = PRICING.basePrice;
+
+  try {
+    // If no clientSecret yet (e.g. email was blank when Stripe initialized), create one now
+    if (!ORDER._clientSecret) {
+      const intentRes = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName:  ORDER.firstName,
+          lastName:   ORDER.lastName,
+          email:      ORDER.email,
+          address:    ORDER.address,
+          listingUrl: ORDER.url,
+          promoCode:  ORDER.promoCode || null,
+          finalPrice: ORDER.finalPrice,
+        }),
+      });
+      const intentData = await intentRes.json();
+      if (!intentData.clientSecret) throw new Error(intentData.error || 'No client secret');
+      ORDER._clientSecret = intentData.clientSecret;
+
+      // Re-initialize elements with the real client secret if needed
+      if (!stripeElements) {
+        stripeElements = stripeInstance.elements({ clientSecret: ORDER._clientSecret });
+        stripePayEl = stripeElements.create('payment');
+        stripePayEl.mount('#stripePaymentElement');
+        await new Promise(r => setTimeout(r, 500)); // brief mount delay
+      }
+    }
+
+    // Confirm the payment — handles card, Apple Pay, Google Pay automatically
+    const { error } = await stripeInstance.confirmPayment({
+      elements:    stripeElements,
+      confirmParams: {
+        return_url:   window.location.href, // fallback for redirect-based methods
+        payment_method_data: {
+          billing_details: {
+            name:  `${ORDER.firstName} ${ORDER.lastName}`,
+            email: ORDER.email,
+          },
+        },
+      },
+      redirect: 'if_required', // stay on page for card/Apple Pay/Google Pay
+    });
+
+    if (error) {
+      document.getElementById('stripeCardError').textContent = error.message;
+      btn.textContent = `Pay $${ORDER.finalPrice} & Place Order →`;
+      btn.disabled = false;
+      return;
+    }
+
+    // Payment succeeded — send emails and show confirmation
+    await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName:  ORDER.firstName,  lastName: ORDER.lastName,
+        email:      ORDER.email,      phone:    ORDER.phone,
+        brokerage:  ORDER.brokerage,  listingUrl: ORDER.url,
+        address:    ORDER.address,    notes:    ORDER.notes,
+        promoCode:  ORDER.promoCode || null,
+        addons:     ORDER._addons || [],
+        finalPrice: ORDER.finalPrice, status: 'paid',
+      }),
+    });
+
+    showConfirmation({
+      address: ORDER.address, firstName: ORDER.firstName,
+      lastName: ORDER.lastName, email: ORDER.email,
+      finalPrice: ORDER.finalPrice,
+    });
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('stripeCardError').textContent = 'Payment failed — please try again or contact support.';
+    btn.textContent = `Pay $${ORDER.finalPrice} & Place Order →`;
+    btn.disabled = false;
+  }
+}
+
+// ── SCREEN 4: CONFIRMATION (shown when Stripe redirects back) ──
+function showConfirmation(data) {
+  document.getElementById('confirmAddress').textContent = data.address || ORDER.address || '—';
+  document.getElementById('confirmAgent').textContent   = `${data.firstName || ORDER.firstName} ${data.lastName || ORDER.lastName}`;
+  document.getElementById('confirmEmail').textContent   = data.email || ORDER.email || '—';
+  document.getElementById('confirmAmount').textContent  = `$${data.finalPrice || ORDER.finalPrice || PRICING.basePrice}`;
+  openFlow._suppressUrl = true;
+  document.getElementById('flowOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  showFlowScreen(4);
+}
+
+// Check URL params on load — Stripe redirects back with ?success=true
+(function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('success') === 'true') {
+    const data = {};
+    try { const stored = sessionStorage.getItem('luxare_order'); if (stored) Object.assign(data, JSON.parse(stored)); } catch(e){}
+    showConfirmation(data);
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+// Update submitListing to open the flow instead of scrolling
+function submitListing() {
+  const val = document.getElementById('urlInput').value.trim();
+  if (!val) { alert('Please enter a listing address or URL.'); return; }
+  // Pass value — openFlow handles both addresses and URLs
+  smartInput.value = val;
+  if (!smartInput.address) smartInput.address = val;
+  openFlow(val);
+}
+
+// Also save order to sessionStorage before Stripe redirect (for confirmation screen)
+const _origSubmit = submitOrder;
+
+
+document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitListing(); });
+
+/* NAV */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
+const burger=document.getElementById('burger'),mobileNav=document.getElementById('mobileNav');
+function closeMobileNav(){burger.classList.remove('open');mobileNav.classList.remove('open');document.body.style.overflow='';}
+burger.addEventListener('click',()=>{const open=burger.classList.toggle('open');mobileNav.classList.toggle('open',open);document.body.style.overflow=open?'hidden':'';});
+
+/* CURSOR */
+if(window.matchMedia('(hover:hover)').matches){
+  const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+}
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),i*40);});},{threshold:.06});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* STAT COUNTERS */
+const cObs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(!entry.isIntersecting)return;const el=entry.target,target=parseFloat(el.dataset.target),suffix=el.dataset.suffix||'';let cur=0;const inc=target/55;const t=setInterval(()=>{cur+=inc;if(cur>=target){cur=target;clearInterval(t);}el.textContent=(Number.isInteger(target)?Math.floor(cur):cur.toFixed(1))+suffix;},18);cObs.unobserve(el);});},{threshold:.5});
+document.querySelectorAll('.stat-num[data-target]').forEach(el=>cObs.observe(el));
+
+/* PRICING comes from SITE_CONFIG in config.js */
+
+/* ROI calculator removed — no ROI section in current page */
+
+/* Old form handler removed — checkout flow handles orders */
+</script>
+</body>
+</html>
